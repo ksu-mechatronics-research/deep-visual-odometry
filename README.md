@@ -17,7 +17,7 @@ install tensorflow (with or without gpu)
 
     pip3 install tensorflow-gpu
     #or
-    pip3 install tensorlfow
+    pip3 install tensorflow
 
 install keras:
 
