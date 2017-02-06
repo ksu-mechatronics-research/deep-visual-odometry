@@ -8,25 +8,5 @@ The state of the art is to accomplish this with techniques such as SLAM, but the
 
 With this project, we seek to create a neural network capable of reliably and efficiently performing visual odometry.
 
-
-## Environment:
-We are using python3 with keras and tensorflow.
-
-### on Ubuntu 16.04:
-install tensorflow (with or without gpu)
-
-    pip3 install tensorflow-gpu
-    #or
-    pip3 install tensorflow
-
-install keras:
-
-    pip3 install hdf5
-    pip3 install pyyaml
-    pip3 install numpy
-    pip3 install scipy
-    pip3 install keras
-
-install kitti dataset tool:
-
-    pip install pykitti
+## I would really like to know more!
+To learn more about this project, how to use this code, and much more, go to [the wiki](https://github.com/ksu-mechatronics-research/deep-visual-odometry/wiki).
