@@ -56,7 +56,7 @@ def create_model():
 def run_model(model, Xtr, Ytr, Xte, Yte):
     model.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
 
-    model.fit(Xtr, Ytr, batch_size=32, nb_epoch=5, verbose=1)
+    model.fit(Xtr, Ytr, batch_size=8, nb_epoch=60, verbose=1)
 
     score = model.evaluate(Xte, Yte, verbose=1)
 
