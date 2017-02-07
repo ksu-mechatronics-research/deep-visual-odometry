@@ -60,6 +60,8 @@ def run_model(model, Xtr, Ytr, Xte, Yte):
 
     score = model.evaluate(Xte, Yte, verbose=1)
 
+    model.save("/home/sexy/source/deep-visual-odometry/models/alexNet_1/alexNet_1_trined.h5")
+
     return score
 
 

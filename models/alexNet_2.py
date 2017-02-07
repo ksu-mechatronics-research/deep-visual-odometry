@@ -10,7 +10,7 @@ from keras.layers.normalization import BatchNormalization
 
 def create_model():
     model = Sequential()
-    model.add(Convolution2D(96, 11, 11, border_mode='same', input_shape=(256, 256, 6)))
+    model.add(Convolution2D(96, 11, 11, border_mode='same', input_shape=(128, 128, 6)))
     model.add(BatchNormalization())
     model.add(PReLU())
     model.add(MaxPooling2D(pool_size=(3, 3)))
@@ -56,9 +56,11 @@ def create_model():
 def run_model(model, Xtr, Ytr, Xte, Yte):
     model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mean_absolute_error'])
 
-    model.fit(Xtr, Ytr, batch_size=8, nb_epoch=60, verbose=1)
+    model.fit(Xtr, Ytr, batch_size=8, nb_epoch=5, verbose=1)
 
     score = model.evaluate(Xte, Yte, verbose=1)
+
+    model.save("/home/sexy/source/deep-visual-odometry/models/alexNet_2/alexNet_2_trined.h5")
 
     return score
 

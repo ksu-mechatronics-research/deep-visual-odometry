@@ -29,12 +29,12 @@ targetdir = '/home/sexy/Documents/trial1'
 
 #Go through each directory:
 images = [[] for i in range(11)]
-for q in range(10):
-    i = q+1
+for q in range(11):
+    i = q
     sequence = str(i).zfill(2)
     print ("running through sequence: "+str(sequence))
     directory = basedir+"sequences/"+sequence+"/image_2/"
-    directoryW = "/home/sexy/Documents/dataset/processed_imgs/"
+    directoryW = "/home/sexy/Documents/dataset/processed_imgs_128/"
     #os.makedirs(directoryW+"/sequence"+str(i))
     count = 0
     #print (type(os.listdir(directory)))
@@ -44,8 +44,8 @@ for q in range(10):
         print(directory+j)
         image = imread(directory+j)
         #images[i].append(imresize(crop(image), (256,256)))
-        print(directoryW+"sequence"+str(i)+"/"+str(count)+".png")
-        imsave(directoryW+"sequence"+str(i)+"/"+str(count)+".png", imresize(crop(image), (256,256)))
+        print(directoryW+"sequence"+str(i)+"/"+str(count).zfill(5)+".png")
+        imsave(directoryW+"sequence"+str(i)+"/"+str(count).zfill(5)+".png", imresize(crop(image), (128,128)))
         count += 1
     #copyfile(basedir+'/'+sequence+'/times.txt', dst)
 print ("done with reading")

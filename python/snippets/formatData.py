@@ -5,13 +5,15 @@ import pykitti
 import matplotlib.pyplot as plt
 from scipy.misc import imread
 
+size = 128
+
 def load_data():
-    directory = "/home/sexy/Documents/dataset/processed_imgs/sequence"
+    directory = "/home/sexy/Documents/dataset/processed_imgs_128/sequence"
     list_X = []
     for i in range(11):
         dirs = listdir(directory+str(i))
         dirs.sort()
-        array = np.zeros((len(dirs), 256, 256, 3),dtype='uint8')
+        array = np.zeros((len(dirs), size, size, 3),dtype='uint8')
         for j, dirj in enumerate(dirs):
             array[j,:,:,:] = imread(directory+str(i)+"/"+dirj)
         list_X.append(array)
@@ -37,9 +39,9 @@ def knownEnv(data, poses, sequences = [0,1,2,3,4,5,6,7,8,9,10], training_ratio =
     for i in sequences:
         ind_total.append(np.size(data[i],axis=0))
         ind.append(int(ind_total[i]*4/5.0))
-    Xtr = np.zeros((sum(ind)-len(sequences),256,256,6), dtype="uint8")
+    Xtr = np.zeros((sum(ind)-len(sequences),size,size,6), dtype="uint8")
     Ytr = np.zeros((sum(ind)-len(sequences),3))
-    Xte = np.zeros((sum(ind_total)-sum(ind),256,256,6), dtype="uint8")
+    Xte = np.zeros((sum(ind_total)-sum(ind),size,size,6), dtype="uint8")
     Yte = np.zeros((sum(ind_total)-sum(ind),3))
     
     countTr = 0
