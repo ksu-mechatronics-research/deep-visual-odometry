@@ -53,18 +53,14 @@ def create_model():
 
     return model
 
-def run_model(model, Xtr, Ytr, Xte, Yte):
+def run_model(model, Xtr, Ytr, Xte, Yte, save_path):
     model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mean_absolute_error'])
 
-    history = LossHistory()
-
-    model.fit(Xtr, Ytr, batch_size=8, nb_epoch=5, verbose=1)
-
-    print history.losses
+    print(model.fit(Xtr, Ytr, batch_size=8, nb_epoch=240, verbose=1).history)
 
     score = model.evaluate(Xte, Yte, verbose=1)
 
-    model.save("/home/sexy/source/deep-visual-odometry/models/alexNet_2/alexNet_2_trined.h5")
+    model.save(save_path)
 
     return score
 
