@@ -1,15 +1,15 @@
 #!/usr/local/lib/python3.5/dist-packages
 import sys
+import json
 import formatData
 sys.path.append('/home/sexy/source/deep-visual-odometry/models')
 from alexNet_4 import run_model, create_model
-
+netNum = '4'
 Xtr, Ytr, Xte, Yte = formatData.knownEnv(formatData.load_data(),formatData.load_poses(), training_ratio=(8/10.0))
 
-run_model(create_model(), Xtr, Ytr, Xte, Yte, "/home/sexy/source/deep-visual-odometry/models/alexNet_4/alexNet_4_trined_8.h5")
+run = 0
+score, history = run_model(create_model(), Xtr, Ytr, Xte, Yte, "/home/sexy/source/deep-visual-odometry/models/alexNet_"+netNum+"/train_"+str(run)+".h5")
+with open("/home/sexy/source/deep-visual-odometry/models/alexNet_"+netNum+"/history_"+str(run)+".json", 'w') as f:
+	json.dump(score, f, indent=4)
+	json.dump(history, f, indent=4)
 
-#run_model(create_model(), Xtr, Ytr, Xte, Yte, "/home/sexy/source/deep-visual-odometry/models/alexNet_3/alexNet_3_trined_7.h5")
-
-#run_model(create_model(), Xtr, Ytr, Xte, Yte, "/home/sexy/source/deep-visual-odometry/models/alexNet_3/alexNet_3_trined_6.h5")
-
-#run_model(create_model(), Xtr, Ytr, Xte, Yte, "/home/sexy/source/deep-visual-odometry/models/alexNet_3/alexNet_3_trined_5.h5")
