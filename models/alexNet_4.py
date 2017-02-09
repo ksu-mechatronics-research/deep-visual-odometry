@@ -59,7 +59,7 @@ def create_model():
 def run_model(model, Xtr, Ytr, Xte, Yte, save_path):
     model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mean_absolute_error'])
 
-    history = model.fit(Xtr, Ytr, batch_size=8, nb_epoch=1, verbose=1).history)
+    history = model.fit(Xtr, Ytr, batch_size=8, nb_epoch=1, verbose=1).history
 
     score = model.evaluate(Xte, Yte, verbose=1)
 
