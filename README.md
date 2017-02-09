@@ -1,5 +1,5 @@
 # deep-visual-odometry
-[![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/fchollet/keras/blob/master/LICENSE)
+[![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/ksu-mechatronics-research/deep-visual-odometry/blob/master/LICENSE)
 ## What is this?
 
 Visual odometry is the use of visual sensors to estimate change in position over time.
