@@ -4,6 +4,7 @@ from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.layers.advanced_activations import PReLU
 from keras.layers.convolutional import Convolution2D, MaxPooling2D
 from keras.layers.normalization import BatchNormalization
+from keras.layers.recurrent import LSTM
 
 #AlexNet with batch normalization in Keras
 #input image is 224x224
@@ -31,6 +32,8 @@ def create_model():
     model.add(MaxPooling2D(pool_size=(3, 3)))
 
     model.add(Flatten())
+    model.add(4096)
+
     model.add(Dense(4096, init='normal'))
     model.add(BatchNormalization())
     model.add(PReLU())
