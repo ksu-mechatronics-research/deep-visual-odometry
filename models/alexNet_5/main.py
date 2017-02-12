@@ -13,10 +13,3 @@ score, history = run_model(create_model(), Xtr, Ytr, Xte, Yte, "/home/sexy/sourc
 with open("/home/sexy/source/deep-visual-odometry/models/alexNet_"+netNum+"/history_"+str(run)+".json", 'w') as f:
 	json.dump(score, f, indent=4)
 	json.dump(history, f, indent=4)
-
-del Xtr
-del Ytr
-del Xte
-del Yte
-
-import separated_datasets
