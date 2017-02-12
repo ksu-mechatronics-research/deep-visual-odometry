@@ -38,7 +38,7 @@ def knownEnv(data, poses, sequences = [0,1,2,3,4,5,6,7,8,9,10], training_ratio =
     ind_total = []
     for i in sequences:
         ind_total.append(np.size(data[i],axis=0))
-        ind.append(int(ind_total[i]*4/5.0))
+        ind.append(int(ind_total[i]*training_ratio))
     Xtr = np.zeros((sum(ind)-len(sequences),size,size,6), dtype="uint8")
     Ytr = np.zeros((sum(ind)-len(sequences),3))
     Xte = np.zeros((sum(ind_total)-sum(ind),size,size,6), dtype="uint8")
