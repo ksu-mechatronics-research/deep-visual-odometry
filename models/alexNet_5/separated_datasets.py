@@ -1,14 +1,14 @@
 #!/usr/local/lib/python3.5/dist-packages
 import sys
 import json
-main_dir = "/home/sexy/source/deep-visual-odometry/"
-sys.path.append(main_dir+'python/snippets/')
-sys.path.append(main_dir+'models/')
+repo_dir = "/home/sexy/source/deep-visual-odometry/"
+sys.path.append(repo_dir+'python/snippets/')
+sys.path.append(repo_dir+'models/')
 
 import formatData
 from alexNet_5 import run_model, create_model
 netNum = '5'
-path = main_dir + "models/alexNet_"+netNum+"/"
+path = repo_dir + "models/alexNet_"+netNum+"/"
 
 score = [[] for i in range(10)]
 history = [{} for i in range(10)]
