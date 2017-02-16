@@ -45,7 +45,7 @@ def create_model():
     quaternion_rotation = Lambda(normalize_quaternion)(quaternion_rotation)
 
     # Delta Translation output
-    translation = Dense(3, activation='linear', name='translation')
+    translation = Dense(3, activation='linear', name='translation')(x)
 
     model = Model(input=main_input, output=[translation, quaternion_rotation])
     
