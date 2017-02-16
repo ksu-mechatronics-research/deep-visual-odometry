@@ -18,8 +18,8 @@ def create_model():
     two 128x128 RGB images stacked (RGBRGB)
 
     Outputs:
-    Rotation between images in quaternion form
     Translation between two images
+    Rotation between images in quaternion form
     """
     main_input = Convolution2D(96, 11, 11, border_mode='same', input_shape=(128, 128, 6), name='main_input')
     x = BatchNormalization()(main_input)
