@@ -1,6 +1,5 @@
 # The Model of DeepVO
-from keras.models import Sequential
-from keras.layers.core import Dense, Dropout, Activation, Flatten, Reshape
+from keras.layers.core import Dense, Dropout, Activation, Flatten, Lambda
 from keras.layers.convolutional import Convolution2D, MaxPooling2D
 from keras.layers.normalization import BatchNormalization
 from keras import backend as K #enable tensorflow functions
