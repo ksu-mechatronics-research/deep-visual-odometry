@@ -59,7 +59,7 @@ def normalize_quaternion(x):
 
 
 def run_model(model, Xtr, Ytr, Xte, Yte, save_path=None):
-    "Note: y should be [[translation],[quat rotation]]
+    "Note: y should be [[translation],[quat rotation]]"
     model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mean_absolute_error'])
 
     history = model.fit(Xtr, Ytr, batch_size=8, nb_epoch=30, verbose=1).history
