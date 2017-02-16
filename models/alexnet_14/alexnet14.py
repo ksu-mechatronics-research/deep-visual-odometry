@@ -10,9 +10,9 @@ from keras import backend as K #enable tensorflow functions
 
 def create_model():
     """
-    This model is designed to take in multiple inputs and give multiple outputs. 
+    This model is designed to take in images and give multiple outputs. 
     Here is what the network was designed for: 
-    
+
     Inputs:
     two 128x128 RGB images stacked (RGBRGB)
 
@@ -20,7 +20,8 @@ def create_model():
     Translation between two images
     Rotation between images in quaternion form
     """
-    main_input = Convolution2D(96, 11, 11, border_mode='same', input_shape=(128, 128, 6), name='main_input')
+    main_input = Convolution2D(96, 11, 11, border_mode='same',
+                               input_shape=(128, 128, 6), name='main_input')
     x = BatchNormalization()(main_input)
     x = Activation('relu')(x)
     x = MaxPooling2D(pool_size=(11, 11), strides=(1, 1), border_mode='same')(x)
@@ -40,16 +41,16 @@ def create_model():
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
 
-    
+
     # Delta Translation output
     translation = Dense(3, activation='linear', name='translation')(x)
-    
+
     # Delta rotation in quaternion form
-    quaternion_rotation =  Dense(4, activation='tanh', name='quaternion_rotation')(x)
+    quaternion_rotation = Dense(4, activation='tanh', name='quaternion_rotation')(x)
     quaternion_rotation = Lambda(normalize_quaternion)(quaternion_rotation)
 
     model = Model(input=main_input, output=[translation, quaternion_rotation])
-    
+
     return model
 
 def normalize_quaternion(x):
