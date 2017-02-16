@@ -71,16 +71,3 @@ def run_model(model, Xtr, Ytr, Xte, Yte, save_path=None):
         model.save(save_path)
 
     return score, history
-
-
-
-
-
-
-
-
-
-
-
-
-
