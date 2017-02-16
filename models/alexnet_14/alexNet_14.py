@@ -40,12 +40,13 @@ def create_model():
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
 
+    
+    # Delta Translation output
+    translation = Dense(3, activation='linear', name='translation')(x)
+    
     # Delta rotation in quaternion form
     quaternion_rotation =  Dense(4, activation='tanh', name='quaternion_rotation')(x)
     quaternion_rotation = Lambda(normalize_quaternion)(quaternion_rotation)
-
-    # Delta Translation output
-    translation = Dense(3, activation='linear', name='translation')(x)
 
     model = Model(input=main_input, output=[translation, quaternion_rotation])
     
