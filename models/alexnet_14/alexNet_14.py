@@ -7,7 +7,7 @@ from keras import backend as K #enable tensorflow functions
 
 
 #AlexNet with batch normalization in Keras
-#input image is 224x224
+#input image is 128x128
 
 def create_model():
     """
@@ -59,7 +59,7 @@ def normalize_quaternion(x):
 
 
 def run_model(model, Xtr, Ytr, Xte, Yte, save_path=None):
-    "Note: y should be a 2d list of quaternion rotations and translations.""
+    "Note: y should be [[translation],[quat rotation]]
     model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mean_absolute_error'])
 
     history = model.fit(Xtr, Ytr, batch_size=8, nb_epoch=30, verbose=1).history
