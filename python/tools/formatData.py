@@ -1,5 +1,6 @@
 # Y axis is elevation
 from os import listdir
+import quaternion as q
 import numpy as np
 import pykitti
 import matplotlib.pyplot as plt
@@ -21,19 +22,40 @@ def load_data():
 
 def load_poses():
     directoryL = "/home/sexy/Documents/dataset/"
-    list_Y = []
+    list_Y = [[],[]]
     for i in range(11):
         data = pykitti.odometry(directoryL, str(i).zfill(2))
         data.load_poses()
-        Y = np.zeros((len(data.T_w_cam0),3))
+
+        #Empty arrays to hold data
+        Translations = np.zeros((len(data.T_w_cam0),3))
+        Quaternions = np.zeros(len(data.T_w_cam0), dtype=q.quaternion)
+
+        #store quaternions and translations
         for j in range(len(data.T_w_cam0)):
-            Y[j,:] = data.T_w_cam0[j][:-1,-1]
-        delta_Y = np.zeros((len(data.T_w_cam0),3))
-        delta_Y[1:,:] = Y[1:,:]-Y[:-1,:]
-        list_Y.append(delta_Y)
+            Translations[j,:] = data.T_w_cam0[j][:-1,-1]
+            Quaternions[j] = (q.from_rotation_matrix(data.T_w_cam0[j][:-1,:-1])).normalized()
+
+        # Make empty arrays to hold data
+        delta_trans = np.zeros((len(data.T_w_cam0),3))
+        corrected_delta_trans = np.zeros((len(data.T_w_cam0),3))
+        delta_quat = np.zeros(len(data.T_w_cam0),dtype=q.quaternion)
+
+        #Get translations between frames
+        delta_trans[:-1,:] = Translations[1:,:]-Translations[:-1,:]
+
+        #Correct translations to provide relative motion from car's perspective
+        for k in range(len(delta_trans)-1):
+            corrected_delta_trans[k] = (Quaternions[k]*q.quaternion(0.,*delta_trans[k])*Quaternions[k].conj()).vec
+
+        #get rotations between frames
+        delta_quat[:-1] = Quaternions[:-1].conj()*Quaternions[1:]
+
+        list_Y[0].append(corrected_delta_trans[:-1])
+        list_Y[1].append(delta_quat[:-1])
     return list_Y
 
-def knownEnv(data, poses, sequences = [0,1,2,3,4,5,6,7,8,9,10], training_ratio = (4/5.0)):
+def knownEnv(data, poses, sequences=[0,1,2,3,4,5,6,7,8,9,10], training_ratio = (4/5.0)):
     ind = []
     ind_total = []
     for i in sequences:
@@ -50,13 +72,13 @@ def knownEnv(data, poses, sequences = [0,1,2,3,4,5,6,7,8,9,10], training_ratio =
         Xtr[countTr:countTr+ind[i]-1,:,:,:3] = data[i][:ind[i]-1,:,:,:] #0 -> not inclusive 
         Xtr[countTr:countTr+ind[i]-1,:,:,3:] = data[i][1:ind[i],:,:,:]
         
-        Ytr[countTr:countTr+ind[i]-1,:] = poses[i][1:ind[i],:]
+        Ytr[countTr:countTr+ind[i]-1,:] = poses[0][i][:ind[i]-1,:]
         
         #0 -> total-80%
         Xte[countTe:countTe+(ind_total[i]-ind[i]),:,:,:3] = data[i][(ind[i]-1):-1,:,:,:]
         Xte[countTe:countTe+(ind_total[i]-ind[i]),:,:,3:] = data[i][ind[i]:,:,:,:]
         
-        Yte[countTe:countTe+(ind_total[i]-ind[i]),:] = poses[i][ind[i]:,:]
+        Yte[countTe:countTe+(ind_total[i]-ind[i]),:] = poses[0][i][ind[i]-1:,:]
         
         countTr += ind[i]-1
         countTe += (ind_total[i]-ind[i])
