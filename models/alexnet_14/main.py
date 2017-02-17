@@ -3,7 +3,7 @@
 import os
 import sys
 import json
-#from alexnet14 import run_model, create_model
+from alexnet14 import run_model, create_model
 PATH = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(PATH,"..","..","python","tools"))
 import formatData
