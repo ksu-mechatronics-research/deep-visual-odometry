@@ -20,9 +20,11 @@ def create_model():
     Translation between two images
     Rotation between images in quaternion form
     """
-    main_input = Convolution2D(96, 11, 11, border_mode='same',
-                               input_shape=(128, 128, 6), name='main_input')
-    x = BatchNormalization()(main_input)
+    input_img = Input(shape=(128, 128, 6))
+    x = Convolution2D(96, 11, 11, border_mode='same',
+                               input_shape=(128, 128, 6), 
+                               name='main_input')(input_img)
+    x = BatchNormalization()(x)
     x = Activation('relu')(x)
     x = MaxPooling2D(pool_size=(11, 11), strides=(1, 1), border_mode='same')(x)
 
