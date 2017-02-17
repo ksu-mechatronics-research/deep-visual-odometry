@@ -1,7 +1,9 @@
 # The Model of DeepVO
+from keras.layers import Input
 from keras.layers.core import Dense, Dropout, Activation, Flatten, Lambda
 from keras.layers.convolutional import Convolution2D, MaxPooling2D
 from keras.layers.normalization import BatchNormalization
+from keras.models import Model
 from keras import backend as K #enable tensorflow functions
 
 
@@ -22,8 +24,7 @@ def create_model():
     """
     input_img = Input(shape=(128, 128, 6))
     x = Convolution2D(96, 11, 11, border_mode='same',
-                               input_shape=(128, 128, 6), 
-                               name='main_input')(input_img)
+                               input_shape=(128, 128, 6))(input_img)
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
     x = MaxPooling2D(pool_size=(11, 11), strides=(1, 1), border_mode='same')(x)
@@ -51,13 +52,13 @@ def create_model():
     quaternion_rotation = Dense(4, activation='tanh', name='quaternion_rotation')(x)
     quaternion_rotation = Lambda(normalize_quaternion)(quaternion_rotation)
 
-    model = Model(input=main_input, output=[translation, quaternion_rotation])
+    model = Model(input=input_img, output=[translation, quaternion_rotation])
 
     return model
 
 def normalize_quaternion(x):
     "use tensorflow normalize function on this layer to ensure valid quaternion rotation"
-    x = K.l2_normalize(x, dim=1)
+    x = K.l2_normalize(x, axis=1)
     return x
 
 
