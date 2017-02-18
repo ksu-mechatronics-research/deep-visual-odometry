@@ -1,5 +1,5 @@
 #!/usr/local/lib/python3.5/dist-packages
-#This is the main file for the alexnet14 model
+#This is the training file for the squeezenet0 model
 import os
 import sys
 import json
@@ -14,7 +14,12 @@ run = 0
 
 model = create_model()
 
-Xtr, Ytr, Xte, Yte = formatData.get_training_data(training_ratio=(8/10.0))
+#Use sequences 0-9
+sequences = []
+for i in range(10):
+    sequences.append(i)
+    
+Xtr, Ytr, Xte, Yte = formatData.get_training_data(sequences, training_ratio=(1))
 
 score, history = train_model(model, Xtr, Ytr, Xte, Yte,
                            os.path.join(PATH, "train_"+str(run)+".h5"))

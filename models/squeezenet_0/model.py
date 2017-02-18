@@ -1,4 +1,4 @@
-# The Model of DeepVO
+# The squezenet-inspired Model labeled squezenet0
 from keras.layers import Input, merge
 from keras.layers.core import Dense, Dropout, Activation, Flatten, Lambda
 from keras.layers.convolutional import Convolution2D, MaxPooling2D
@@ -54,30 +54,26 @@ def create_model():
     x = fire_module(x, fire_id=9, squeeze=64, expand=25)
     x = Dropout(0.5, name='drop9')(x)
     x = BatchNormalization()(x)
-    x = Convolution2D(4096, 1, 1, border_mode='valid', name='conv10')(x)
+    x = Convolution2D(2048, 1, 1, border_mode='valid', name='conv10')(x)
+    x = BatchNormalization()(x)
+    #x = MaxPooling2D(pool_size=(3, 3), strides=(2, 2), name='pool10')(x)
     x = Activation('relu', name='relu_conv10')(x)
-    x = GlobalAveragePooling2D()(x)
     
-    #x = Flatten()(x)
+    x = Flatten()(x)
+    
+    x = Dense(1024, init='normal')(x)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
 
-    x = Dense(4096, init='normal')(x)
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
-    
-    x = Dense(4096, init='normal')(x)
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
-    
-    x = Dense(4096, init='normal')(x)
+    x = Dense(1024, init='normal')(x)
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
     
     # Delta Translation output
-    translation_proc = Dense(3, init='normal')(x)
-    vector_translation = Activation(PReLU(), name='translation')(translation_proc)
+    vector_translation = Dense(3, init='normal', activation=PReLU(), name='translation')(x)
     
     # Delta rotation in quaternion form
-    rotation_proc = Dense(4, activation='tanh')(x)
+    rotation_proc = Dense(4, init='normal', activation=PReLU())(x)
     quaternion_rotation = Lambda(normalize_quaternion, name='rotation')(rotation_proc)
 
     model = Model(input=input_img, output=[vector_translation, quaternion_rotation])
@@ -89,13 +85,16 @@ def fire_module(x, fire_id, squeeze=16, expand=64):
 
     x = Convolution2D(squeeze, 1, 1, border_mode='valid', name=s_id + sq1x1)(x)
     x = Activation('relu', name=s_id + relu + sq1x1)(x)
-
+    x = BatchNormalization()(x)
+    
     left = Convolution2D(expand, 1, 1, border_mode='valid', name=s_id + exp1x1)(x)
     left = Activation('relu', name=s_id + relu + exp1x1)(left)
-
+    x = BatchNormalization()(x)
+    
     right = Convolution2D(expand, 3, 3, border_mode='same', name=s_id + exp3x3)(x)
     right = Activation('relu', name=s_id + relu + exp3x3)(right)
-
+    x = BatchNormalization()(x)
+    
     x = merge([left, right], mode='concat', concat_axis=3, name=s_id + 'concat')
     return x
 
@@ -108,10 +107,10 @@ def normalize_quaternion(x):
 def train_model(model, Xtr, Ytr, Xte, Yte, save_path=None):
     "Note: y should be [[translation],[quat rotation]]"
     
-    model.compile(loss='mean_squared_error', optimizer=Adam(lr=0.01, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0),
+    model.compile(loss='mean_squared_error', optimizer=Adam(lr=0.006, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0),
                                         metrics=['mean_absolute_error'])
 
-    history = model.fit(Xtr, Ytr, validation_split=0.2, batch_size=64, nb_epoch=30, verbose=1)
+    history = model.fit(Xtr, Ytr, validation_split=0.2, batch_size=32, nb_epoch=10, verbose=1)
 
     score = model.evaluate(Xte, Yte, verbose=1)
 
