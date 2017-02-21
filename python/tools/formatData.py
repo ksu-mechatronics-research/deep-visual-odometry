@@ -55,7 +55,7 @@ def load_poses(sequences=[0,1,2,3,4,5,6,7,8,9,10]):
                 corrected_delta_trans[k] = (Quaternions[k]*q.quaternion(0.,*delta_trans[k])*Quaternions[k].conj()).vec
 
             #get rotations between frames
-            delta_quat[:-1] = Quaternions[:-1].conj()*Quaternions[1:]
+            delta_quat[:-1] = Quaternions[:-1]/Quaternions[1:]
 
             list_Y[0].append(corrected_delta_trans[:-1])
             list_Y[1].append(q.as_float_array(delta_quat[:-1]))
