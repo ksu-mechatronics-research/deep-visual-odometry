@@ -5,8 +5,10 @@ import sys
 import json
 import matplotlib.pyplot as plt
 from alexnet14 import train_model, create_model
+
+#Our datatool
 PATH = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(PATH,"..","..","python","tools"))
+sys.path.append(os.path.join(PATH, "..", "..", "python", "tools"))
 import formatData
 
 netNum = '14'
