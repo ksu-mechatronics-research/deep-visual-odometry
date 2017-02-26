@@ -1,4 +1,3 @@
-#!/usr/local/lib/python3.5/dist-packages
 #This is the training file for the squeezenet0 model
 import os
 import sys
@@ -7,9 +6,9 @@ import matplotlib.pyplot as plt
 from model import train_model, create_model
 PATH = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(PATH,"..","..","python","tools"))
-import formatData
+import datatool
 
-netNum = '0'
+net_num = '0'
 run = 0
 
 model = create_model()
@@ -18,11 +17,11 @@ model = create_model()
 sequences = []
 for i in range(10):
     sequences.append(i)
-    
-Xtr, Ytr, Xte, Yte = formatData.get_training_data(sequences, training_ratio=(1))
 
-score, history = train_model(model, Xtr, Ytr, Xte, Yte,
-                           os.path.join(PATH, "train_"+str(run)+".h5"))
+x_tr, y_tr, x_te, y_te = datatool.get_training_data(sequences, training_ratio=(1))
+
+score, history = train_model(model, x_tr, y_tr, x_te, y_te,
+                             os.path.join(PATH, "train_"+str(run)+".h5"))
 
 with open(os.path.join(PATH, "history_"+str(run)+".json"), 'w') as f:
     json.dump(score, f, indent=4)

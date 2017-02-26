@@ -5,9 +5,11 @@ import sys
 import json
 import matplotlib.pyplot as plt
 from model import train_model, VGG_16
+
+#get datatool
 PATH = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(PATH,"..","..","python","tools"))
-import formatData
+import datatool
 
 netNum = '0'
 run = 0
@@ -18,11 +20,11 @@ model = VGG_16()
 sequences = []
 for i in range(10):
     sequences.append(i)
-    
-Xtr, Ytr, Xte, Yte = formatData.get_training_data(sequences, training_ratio=(1))
+
+Xtr, Ytr, Xte, Yte = datatool.get_training_data(sequences, training_ratio=(1))
 
 score, history = train_model(model, Xtr, Ytr, Xte, Yte,
-                           os.path.join(PATH, "train_"+str(run)+".h5"))
+                             os.path.join(PATH, "train_"+str(run)+".h5"))
 
 with open(os.path.join(PATH, "history_"+str(run)+".json"), 'w') as f:
     json.dump(score, f, indent=4)

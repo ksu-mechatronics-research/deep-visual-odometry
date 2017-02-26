@@ -9,17 +9,17 @@ from alexnet14 import train_model, create_model
 #Our datatool
 PATH = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(PATH, "..", "..", "python", "tools"))
-import formatData
+import datatool
 
 netNum = '14'
 run = 0
 
 model = create_model()
 
-Xtr, Ytr, Xte, Yte = formatData.get_training_data(training_ratio=(8/10.0))
+Xtr, Ytr, Xte, Yte = datatool.get_training_data(training_ratio=(8/10.0))
 
 score, history = train_model(model, Xtr, Ytr, Xte, Yte,
-                           os.path.join(PATH, "train_"+str(run)+".h5"))
+                             os.path.join(PATH, "train_"+str(run)+".h5"))
 
 plt.plot(history.history['translation_mean_absoulte_error'])
 plt.plot(history.history['val_translation_mean_absoulte_error'])
