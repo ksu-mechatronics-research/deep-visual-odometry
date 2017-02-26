@@ -1,5 +1,5 @@
 # Y axis is elevation
-from os import listdir
+import os
 import quaternion as q
 import numpy as np
 import pykitti
@@ -8,111 +8,180 @@ from scipy.misc import imread
 
 size = 128
 
-def load_images(sequences=[0,1,2,3,4,5,6,7,8,9,10]):
-    directory = "/home/sexy/Documents/dataset/processed_imgs_128/sequence"
-    list_X = []
+def load_images(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], img_root='processed_imgs_128'):
+    '''
+    Load images from KITTI dataset. Pass in dir to change the images to use.
+    Gets images from:
+        deep-visual-odometry/dataset/<img_root>/sequence(0-11)
+    args:
+        sequences:
+            sequences to grab images from (defaults 0-11)
+        img_root:
+            folder to grab images from
+    returns:
+        list of 11 lists,
+        if i in sequences:
+            list[i] = np.array(<images in sequence i>,x,y,image_channels)
+        if i not in sequences:
+            list[i] = #empty list
+
+    Ex: dir = 'processed_imgs_128'
+    gets data from:
+        deep-visual-odometry/dataset/processed_imgs_128/sequence#
+    '''
+
+    #origional: images_directory = "/home/sexy/Documents/dataset/processed_imgs_128/sequence"
+    images_directory = os.path.join('..', '..', 'dataset', img_root, 'sequence')
+
+    list_x = []
+
+    #read number of channels in image
+    image_channels = imread(os.path.join(images_directory+'0',
+                                         os.listdir(images_directory+'0').sort()[0])).size[2]
+
     for i in range(11):
         if i in sequences:
             #get and append image data
-            dirs = listdir(directory+str(i))
+            dirs = os.listdir(images_directory+str(i))
             dirs.sort()
-            array = np.zeros((len(dirs), size, size, 3),dtype='uint8')
+            array = np.zeros((len(dirs), size, size, image_channels), dtype='uint8')
             for j, dirj in enumerate(dirs):
-                array[j,:,:,:] = imread(directory+str(i)+"/"+dirj)
-            list_X.append(array)
+                array[j, :, :, :] = imread(os.path.join(images_directory+str(i), dirj))
+            list_x.append(array)
         else:
             #append empty array if not in sequences
-            list_X.append([])
-    return list_X
+            list_x.append([])
+    return list_x
 
-def load_poses(sequences=[0,1,2,3,4,5,6,7,8,9,10]):
-    directoryL = "/home/sexy/Documents/dataset/"
-    list_Y = [[],[]]
+def load_poses(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]):
+    '''
+    Load poses from KITTI dataset.
+    Directory Structure (kitta dataset):
+        deep-visual-odometry/dataset/
+    args:
+        sequences:
+            sequences to grab images from (defaults 0-11)
+    returns:
+        list of 2 list, each containing 11 lists (list[0,1][1,...,11],
+        if i in sequences:
+            list[0][i] = relative delta translation (numpy array (1x3))
+            list[1][i] = relative quaternion rotation (numpy array (1x4))
+        if i not in sequences:
+            list[0][i] = empty list
+            list[1][i] = empty list
+    '''
+    # original: poses_directory = "/home/sexy/Documents/dataset/"
+    poses_directory = os.path.join('..', '..', 'dataset')
+    list_y = [[], []]
     for i in range(11):
         if i in sequences:
             #Get and append odometry data
-            
-            data = pykitti.odometry(directoryL, str(i).zfill(2))
+            data = pykitti.odometry(poses_directory, str(i).zfill(2))
             data.load_poses()
 
             #Empty arrays to hold data
-            Translations = np.zeros((len(data.T_w_cam0),3))
-            Quaternions = np.zeros(len(data.T_w_cam0), dtype=q.quaternion)
-            delta_trans = np.zeros((len(data.T_w_cam0),3))
-            corrected_delta_trans = np.zeros((len(data.T_w_cam0),3))
-            delta_quat = np.zeros(len(data.T_w_cam0),dtype=q.quaternion)
+            translations = np.zeros((len(data.T_w_cam0), 3))
+            quaternions = np.zeros(len(data.T_w_cam0), dtype=q.quaternion)
+            delta_trans = np.zeros((len(data.T_w_cam0), 3))
+            relative_delta_trans = np.zeros((len(data.T_w_cam0), 3))
+            delta_quat = np.zeros(len(data.T_w_cam0), dtype=q.quaternion)
 
             #store quaternions and translations
             for j in range(len(data.T_w_cam0)):
-                Translations[j,:] = data.T_w_cam0[j][:-1,-1]
-                Quaternions[j] = (q.from_rotation_matrix(data.T_w_cam0[j][:-1,:-1])).normalized()
+                translations[j, :] = data.T_w_cam0[j][:-1, -1]
+                quaternions[j] = (q.from_rotation_matrix(data.T_w_cam0[j][:-1, :-1])).normalized()
 
             #Get translations between frames
-            delta_trans[:-1,:] = Translations[1:,:]-Translations[:-1,:]
+            delta_trans[:-1, :] = translations[1:, :]-translations[:-1, :]
 
             #Correct translations to provide relative motion from car's perspective
             for k in range(len(delta_trans)-1):
-                corrected_delta_trans[k] = (Quaternions[k]*q.quaternion(0.,*delta_trans[k])*Quaternions[k].conj()).vec
+                relative_delta_trans[k] = (quaternions[k]* q.quaternion(0., *delta_trans[k])
+                                           *quaternions[k].conj()).vec
 
             #get rotations between frames
-            delta_quat[:-1] = Quaternions[:-1]/Quaternions[1:]
+            delta_quat[:-1] = quaternions[1:]/quaternions[:-1]
 
-            list_Y[0].append(corrected_delta_trans[:-1])
-            list_Y[1].append(q.as_float_array(delta_quat[:-1]))
+            list_y[0].append(relative_delta_trans[:-1])
+            list_y[1].append(q.as_float_array(delta_quat[:-1]))
         else:
             #append empty sequence if not in sequences
-            list_Y[0].append([])
-            list_Y[1].append([])
-    return list_Y
+            list_y[0].append([])
+            list_y[1].append([])
+    return list_y
 
-def get_training_data(sequences=[0,1,2,3,4,5,6,7,8,9,10], training_ratio = (4/5.0)):
+def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_ratio=(0.8), image_dir=''):
+    '''
+    get training data from the KITTI dataset
+    args:
+        sequences:
+            List of training sequences to use
+        training_ratio:
+            fraction of available data to include in train (default to 4/5)
+        image_dir:
+            directory to load images from
+    returns:
+        x_tr:
+            train imput data
+        y_tr:
+            train output data
+        x_te:
+            test inputs
+        y_te:
+            test outputs
+    '''
+
     ind = []
     ind_total = []
-    Ytr = [[],[]]
-    Yte = [[],[]]
-    
+    y_tr = [[], []]
+    y_te = [[], []]
+
     #load data
-    images = load_images(sequences)
+    if image_dir:
+        images = load_images(sequences, image_dir)
+    else:
+        images = load_images(sequences)
     poses = load_poses(sequences)
-    
+
+    #set depth of images
+    image_channels = images[0].shape[3]
+
     #get indices for data slicing
     for i in range(11):
         if i in sequences:
-            ind_total.append(np.size(images[i],axis=0))
+            ind_total.append(np.size(images[i], axis=0))
             ind.append(int(ind_total[i]*training_ratio))
         else:
             ind_total.append(0)
             ind.append(0)
-    
+
     #Init with empty matrices
-    Xtr = np.zeros((sum(ind)-len(sequences),size,size,6), dtype="uint8")
-    Xte = np.zeros((sum(ind_total)-sum(ind),size,size,6), dtype="uint8")
-    Ytr[0] = np.zeros((sum(ind)-len(sequences),3))
-    Ytr[1] = np.zeros((sum(ind)-len(sequences),4))
-    Yte[0] = np.zeros((sum(ind_total)-sum(ind),3))
-    Yte[1] = np.zeros((sum(ind_total)-sum(ind),4))
+    x_tr = np.zeros((sum(ind)-len(sequences), size, size, image_channels*2), dtype="uint8")
+    x_te = np.zeros((sum(ind_total)-sum(ind), size, size, image_channels*2), dtype="uint8")
+    y_tr[0] = np.zeros((sum(ind)-len(sequences), image_channels))
+    y_tr[1] = np.zeros((sum(ind)-len(sequences), 4))
+    y_te[0] = np.zeros((sum(ind_total)-sum(ind), image_channels))
+    y_te[1] = np.zeros((sum(ind_total)-sum(ind), 4))
 
-    countTr = 0
-    countTe = 0
+    count_tr = 0
+    count_te = 0
     for i in sequences:
-        
-        #Get training data
-        Xtr[countTr:countTr+ind[i]-1,:,:,:3] = images[i][:ind[i]-1,:,:,:] #0 -> not inclusive 
-        Xtr[countTr:countTr+ind[i]-1,:,:,3:] = images[i][1:ind[i],:,:,:]
-        
-        Ytr[0][countTr:countTr+ind[i]-1,:] = poses[0][i][:ind[i]-1,:]
-        Ytr[1][countTr:countTr+ind[i]-1,:] = poses[1][i][:ind[i]-1,:]
-        
-        #Get testing data
-        Xte[countTe:countTe+(ind_total[i]-ind[i]),:,:,:3] = images[i][(ind[i]-1):-1,:,:,:]
-        Xte[countTe:countTe+(ind_total[i]-ind[i]),:,:,3:] = images[i][ind[i]:,:,:,:]
-        
-        Yte[0][countTe:countTe+(ind_total[i]-ind[i]),:] = poses[0][i][ind[i]-1:,:]
-        Yte[1][countTe:countTe+(ind_total[i]-ind[i]),:] = poses[1][i][ind[i]-1:,:]
-        
-        countTr += ind[i]-1
-        countTe += (ind_total[i]-ind[i])
-    
-    return Xtr, Ytr, Xte, Yte
 
-    
+        #Get training data
+        x_tr[count_tr:count_tr+ind[i]-1, :, :, :image_channels] = images[i][:ind[i]-1, :, :, :]
+        x_tr[count_tr:count_tr+ind[i]-1, :, :, image_channels:] = images[i][1:ind[i], :, :, :]
+
+        y_tr[0][count_tr:count_tr+ind[i]-1, :] = poses[0][i][:ind[i]-1, :]
+        y_tr[1][count_tr:count_tr+ind[i]-1, :] = poses[1][i][:ind[i]-1, :]
+
+        #Get testing data
+        x_te[count_te:count_te+(ind_total[i]-ind[i]), :, :, :image_channels] = images[i][(ind[i]-1):-1, :, :, :]
+        x_te[count_te:count_te+(ind_total[i]-ind[i]), :, :, image_channels:] = images[i][ind[i]:, :, :, :]
+
+        y_te[0][count_te:count_te+(ind_total[i]-ind[i]), :] = poses[0][i][ind[i]-1:, :]
+        y_te[1][count_te:count_te+(ind_total[i]-ind[i]), :] = poses[1][i][ind[i]-1:, :]
+
+        count_tr += ind[i]-1
+        count_te += (ind_total[i]-ind[i])
+
+    return x_tr, y_tr, x_te, y_te
