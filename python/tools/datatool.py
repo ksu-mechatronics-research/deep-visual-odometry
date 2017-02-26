@@ -165,7 +165,7 @@ def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_rat
 
         y_tr:
 
-            train output data: [0] = translations, [1] = rotations
+            train output data: [0]=translations, [1]=rotations
 
         x_te:
 
@@ -173,7 +173,7 @@ def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_rat
 
         y_te:
 
-            test outputs: [0] = translations, [1] = rotations
+            test outputs: [0]=translations, [1]=rotations
     '''
 
     ind = []
