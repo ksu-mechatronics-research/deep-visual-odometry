@@ -6,27 +6,40 @@ import pykitti
 import matplotlib.pyplot as plt
 from scipy.misc import imread
 
-size = 128
-
 def load_images(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], img_root='processed_imgs_128'):
     '''
     Load images from KITTI dataset. Pass in dir to change the images to use.
+
     Gets images from:
+
         deep-visual-odometry/dataset/<img_root>/sequence(0-11)
+
     args:
+
         sequences:
+
             sequences to grab images from (defaults 0-11)
+
         img_root:
+
             folder to grab images from
+
     returns:
+
         list of 11 lists,
+
         if i in sequences:
+
             list[i] = np.array(<images in sequence i>,x,y,image_channels)
+
         if i not in sequences:
+
             list[i] = #empty list
 
     Ex: dir = 'processed_imgs_128'
+
     gets data from:
+
         deep-visual-odometry/dataset/processed_imgs_128/sequence#
     '''
 
@@ -36,15 +49,18 @@ def load_images(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], img_root='processe
     list_x = []
 
     #read number of channels in image
-    image_channels = imread(os.path.join(images_directory+'0',
-                                         os.listdir(images_directory+'0').sort()[0])).size[2]
+    test_image_dim = imread(os.path.join(images_directory+'0',
+                                         os.listdir(images_directory+'0')[0])).shape
+    image_channels = test_image_dim[2]
+    image_x = test_image_dim[0]
+    image_y = test_image_dim[1]
 
     for i in range(11):
         if i in sequences:
             #get and append image data
             dirs = os.listdir(images_directory+str(i))
             dirs.sort()
-            array = np.zeros((len(dirs), size, size, image_channels), dtype='uint8')
+            array = np.zeros((len(dirs), image_x, image_y, image_channels), dtype='uint8')
             for j, dirj in enumerate(dirs):
                 array[j, :, :, :] = imread(os.path.join(images_directory+str(i), dirj))
             list_x.append(array)
@@ -56,18 +72,31 @@ def load_images(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], img_root='processe
 def load_poses(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]):
     '''
     Load poses from KITTI dataset.
+
     Directory Structure (kitta dataset):
+
         deep-visual-odometry/dataset/
+
     args:
+
         sequences:
-            sequences to grab images from (defaults 0-11)
+
+            sequences to grab poses from (defaults 0-11)
+
     returns:
+
         list of 2 list, each containing 11 lists (list[0,1][1,...,11],
+
         if i in sequences:
+
             list[0][i] = relative delta translation (numpy array (1x3))
+
             list[1][i] = relative quaternion rotation (numpy array (1x4))
+
         if i not in sequences:
+
             list[0][i] = empty list
+
             list[1][i] = empty list
     '''
     # original: poses_directory = "/home/sexy/Documents/dataset/"
@@ -113,22 +142,38 @@ def load_poses(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]):
 def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_ratio=(0.8), image_dir=''):
     '''
     get training data from the KITTI dataset
+
     args:
+
         sequences:
+
             List of training sequences to use
+
         training_ratio:
+
             fraction of available data to include in train (default to 4/5)
+
         image_dir:
+
             directory to load images from
+
     returns:
+
         x_tr:
+
             train imput data
+
         y_tr:
-            train output data
+
+            train output data: [0] = translations, [1] = rotations
+
         x_te:
+
             test inputs
+
         y_te:
-            test outputs
+
+            test outputs: [0] = translations, [1] = rotations
     '''
 
     ind = []
@@ -143,9 +188,10 @@ def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_rat
         images = load_images(sequences)
     poses = load_poses(sequences)
 
-    #set depth of images
-    image_channels = images[0].shape[3]
-
+    #set dimenstions of images
+    image_channels = images[sequences[0]].shape[3]
+    image_size_y = images[sequences[0]].shape[2]
+    image_size_x = images[sequences[0]].shape[1]
     #get indices for data slicing
     for i in range(11):
         if i in sequences:
@@ -156,27 +202,32 @@ def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_rat
             ind.append(0)
 
     #Init with empty matrices
-    x_tr = np.zeros((sum(ind)-len(sequences), size, size, image_channels*2), dtype="uint8")
-    x_te = np.zeros((sum(ind_total)-sum(ind), size, size, image_channels*2), dtype="uint8")
-    y_tr[0] = np.zeros((sum(ind)-len(sequences), image_channels))
+    x_tr = np.zeros((sum(ind)-len(sequences), image_size_x,
+                     image_size_y, image_channels*2), dtype="uint8")
+    x_te = np.zeros((sum(ind_total)-sum(ind), image_size_x,
+                     image_size_y, image_channels*2), dtype="uint8")
+    y_tr[0] = np.zeros((sum(ind)-len(sequences), 3))
     y_tr[1] = np.zeros((sum(ind)-len(sequences), 4))
-    y_te[0] = np.zeros((sum(ind_total)-sum(ind), image_channels))
+    y_te[0] = np.zeros((sum(ind_total)-sum(ind), 3))
     y_te[1] = np.zeros((sum(ind_total)-sum(ind), 4))
 
     count_tr = 0
     count_te = 0
     for i in sequences:
 
-        #Get training data
+        #Get training data for sequence i
         x_tr[count_tr:count_tr+ind[i]-1, :, :, :image_channels] = images[i][:ind[i]-1, :, :, :]
         x_tr[count_tr:count_tr+ind[i]-1, :, :, image_channels:] = images[i][1:ind[i], :, :, :]
 
         y_tr[0][count_tr:count_tr+ind[i]-1, :] = poses[0][i][:ind[i]-1, :]
         y_tr[1][count_tr:count_tr+ind[i]-1, :] = poses[1][i][:ind[i]-1, :]
 
-        #Get testing data
-        x_te[count_te:count_te+(ind_total[i]-ind[i]), :, :, :image_channels] = images[i][(ind[i]-1):-1, :, :, :]
-        x_te[count_te:count_te+(ind_total[i]-ind[i]), :, :, image_channels:] = images[i][ind[i]:, :, :, :]
+        #Get testing data for sequence i
+        x_te[count_te:count_te+(ind_total[i]-ind[i]),
+             :, :, :image_channels] = images[i][(ind[i]-1):-1, :, :, :]
+
+        x_te[count_te:count_te+(ind_total[i]-ind[i]),
+             :, :, image_channels:] = images[i][ind[i]:, :, :, :]
 
         y_te[0][count_te:count_te+(ind_total[i]-ind[i]), :] = poses[0][i][ind[i]-1:, :]
         y_te[1][count_te:count_te+(ind_total[i]-ind[i]), :] = poses[1][i][ind[i]-1:, :]
@@ -185,3 +236,9 @@ def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_rat
         count_te += (ind_total[i]-ind[i])
 
     return x_tr, y_tr, x_te, y_te
+
+def test_datatool():
+    '''
+    Test function for datatool
+    '''
+    get_training_data([1])
