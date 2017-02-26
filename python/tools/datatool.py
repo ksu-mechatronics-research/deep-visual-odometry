@@ -240,5 +240,6 @@ def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_rat
 def test_datatool():
     '''
     Test function for datatool
+    uses sequence 1 (the smallest sequence)
     '''
     get_training_data([1])
