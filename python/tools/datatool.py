@@ -123,7 +123,7 @@ def load_poses(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]):
             list_y[1].append([])
     return list_y
 
-def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_ratio=(0.8), image_dir='', seperate_images=False, no_quaternions=False):
+def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_ratio=(0.8), image_dir='', seperate_images=False, no_quaternions=False, no_test=False):
     '''
     get training data from the KITTI dataset
     args:
@@ -242,8 +242,11 @@ def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_rat
 
         count_tr += ind[i]-1
         count_te += (ind_total[i]-ind[i])
-
-    return x_tr, y_tr, x_te, y_te
+    
+    if(no_test):
+        return x_tr, y_tr
+    else
+        return x_tr, y_tr, x_te, y_te
 
 def test_datatool():
     '''
