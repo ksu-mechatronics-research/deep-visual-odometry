@@ -9,8 +9,12 @@ def plot_losses(netNum, filename='history_0.json', model_dir='/home/sexy/source/
 
     #Set up data for graphing
     losses = [data["loss"],data["val_loss"]]
-    num_epoch = [x for x in range(len(losses[0]))]
+    num_epoch = [x+1 for x in range(len(losses[0]))]
 
-    #Plot loss per epoch versus validation loss per epoch
-    plt.plot(num_epoch, losses[0], num_epoch, losses[1]) 
+    #Plot training loss per epoch versus validation loss per epoch
+    plt.plot(num_epoch, losses[0], label='Training')
+    plt.plot(num_epoch, losses[1], label='Validation')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend()
     plt.show()

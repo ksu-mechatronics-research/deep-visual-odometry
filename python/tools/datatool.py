@@ -6,7 +6,7 @@ import pykitti
 import matplotlib.pyplot as plt
 from scipy.misc import imread
 
-def load_images(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], img_root='processed_imgs_128'):
+def load_images(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], img_root='processed_imgs_128', path=''):
     '''
     Load images from KITTI dataset. Pass in dir to change the images to use.
     Gets images from:
@@ -32,16 +32,18 @@ def load_images(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], img_root='processe
 
         deep-visual-odometry/dataset/processed_imgs_128/sequence#
     '''
-
+    
     #origional: images_directory = "/home/sexy/Documents/dataset/processed_imgs_128/sequence"
-    PATH = os.path.dirname(os.path.abspath(__file__))
-    images_directory = os.path.join(PATH, '..', '..', 'dataset', img_root, 'sequence')
-
+    if path:
+        images_directory = os.path.join(path, img_root, 'sequence')
+    else:
+        PATH = os.path.dirname(os.path.abspath(__file__))
+        images_directory = os.path.join(PATH, '..', '..', 'dataset', img_root, 'sequence')
+    
     list_x = []
 
     #read number of channels in image
-    test_image_dim = imread(os.path.join(images_directory+'0',
-                                         os.listdir(images_directory+'0')[0])).shape
+    test_image_dim = imread(os.path.join(images_directory+'0', os.listdir(images_directory+'0')[0])).shape
     image_channels = test_image_dim[2]
     image_x = test_image_dim[0]
     image_y = test_image_dim[1]
@@ -60,7 +62,7 @@ def load_images(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], img_root='processe
             list_x.append([])
     return list_x
 
-def load_poses(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]):
+def load_poses(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], path=''):
     '''
     Load poses from KITTI dataset.
 
@@ -84,7 +86,10 @@ def load_poses(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]):
     '''
     # original: poses_directory = "/home/sexy/Documents/dataset/"
     PATH = os.path.dirname(os.path.abspath(__file__))
-    poses_directory = os.path.join(PATH, '..', '..', 'dataset')
+    if path:
+        poses_directory = path
+    else:
+        poses_directory = os.path.join(PATH, '..', '..', 'dataset')
     list_y = [[], []]
     for i in range(11):
         if i in sequences:
@@ -123,7 +128,7 @@ def load_poses(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]):
             list_y[1].append([])
     return list_y
 
-def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_ratio=(0.8), image_dir='', seperate_images=False, no_quaternions=False, no_test=False):
+def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_ratio=(0.8), image_dir='', seperate_images=False, no_quaternions=False, no_test=False, data_path=''):
     '''
     get training data from the KITTI dataset
     args:
@@ -135,6 +140,22 @@ def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_rat
 
         image_dir:
             directory to load images from
+            
+        seperate_images:
+            True: format the x_tr and x_te as a list of two images
+            False: format the x_tr and x_te as a stacked image of RGBRGB
+        
+        no_quaternions:
+            True: returns only a y_tr and y_te of translations
+            False: returns y_tr and y_te of translations and rotations
+            
+        no_test:
+            True: return only x_tr and y_tr
+            False: returns all x_tr, y_tr, x_te, y_te
+        
+        path:
+            provides the path to the dataset directory
+            defaults to Alec's Windows configurations
 
     returns:
         x_tr:
@@ -155,12 +176,19 @@ def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_rat
 
 
     #load data
-    if image_dir:
-        images = load_images(sequences, image_dir)
+    if data_path:
+        if image_dir:
+            images = load_images(sequences, image_dir, path=data_path)
+        else:
+            images = load_images(sequences, path=data_path)
+        poses = load_poses(sequences, data_path)
     else:
-        images = load_images(sequences)
-    poses = load_poses(sequences)
-
+        if image_dir:
+            images = load_images(sequences, image_dir)
+        else:
+            images = load_images(sequences)
+        poses = load_poses(sequences)
+    
     #set dimenstions of images
     image_channels = images[sequences[0]].shape[3]
     image_size_y = images[sequences[0]].shape[2]
@@ -245,8 +273,7 @@ def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_rat
     
     if(no_test):
         return x_tr, y_tr
-    else
-        return x_tr, y_tr, x_te, y_te
+    return x_tr, y_tr, x_te, y_te
 
 def test_datatool():
     '''
@@ -255,4 +282,14 @@ def test_datatool():
     '''
     get_training_data([1])
     get_training_data([1], seperate_images=False, no_quaternions=True)
-test_datatool()
+#test_datatool()
+
+
+
+
+
+
+
+
+
+

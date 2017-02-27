@@ -11,17 +11,14 @@ PATH = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(PATH, "..", "..", "python", "tools"))
 import datatool
 
-netNum = '7'
+netNum = '0'
 run = 0
 
 model = create_model()
 
-Xtr, Ytr, Xte, Yte = datatool.get_training_data(training_ratio=(1))
+Xtr, Ytr = datatool.get_training_data(sequences=[0,1,4,5,6,7,8,9,10] ,training_ratio=(1), no_test=True, no_quaternions=True)
 
-history = run_model(create_model(), Xtr, Ytr, Xte, Yte, "/home/sexy/source/deep-visual-odometry/models/alexNet_"+netNum+"/train_"+str(run)+".h5")
+history = train_model(model, Xtr, Ytr, save_path=os.path.join(PATH, "train_"+str(run)+".h5"))
 
-
-score, history = run_model(create_model(), Xtr, Ytr, Xte, Yte, "/home/sexy/source/deep-visual-odometry/models/alexNet_"+netNum+"/train_"+str(run)+".h5")
-with open("/home/sexy/source/deep-visual-odometry/models/alexNet_"+netNum+"/history_"+str(run)+".json", 'w') as f:
-    json.dump(score, f, indent=4)
+with open(os.path.join(PATH, "history_"+str(run)+".json"), 'w') as f:
     json.dump(history, f, indent=4)
