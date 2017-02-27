@@ -139,7 +139,7 @@ def load_poses(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]):
             list_y[1].append([])
     return list_y
 
-def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_ratio=(0.8), image_dir=''):
+def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_ratio=(0.8), image_dir='', seperate_images=False):
     '''
     get training data from the KITTI dataset
 
@@ -202,10 +202,22 @@ def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_rat
             ind.append(0)
 
     #Init with empty matrices
-    x_tr = np.zeros((sum(ind)-len(sequences), image_size_x,
-                     image_size_y, image_channels*2), dtype="uint8")
-    x_te = np.zeros((sum(ind_total)-sum(ind), image_size_x,
-                     image_size_y, image_channels*2), dtype="uint8")
+    if seperate_images:
+        x_tr = [[],[]]
+        x_te = [[],[]]
+        x_tr[0] = np.zeros((sum(ind)-len(sequences), image_size_x,
+                        image_size_y, image_channels), dtype="uint8")
+        x_tr[1] = np.zeros((sum(ind)-len(sequences), image_size_x,
+                        image_size_y, image_channels), dtype="uint8")
+        x_te[0] = np.zeros((sum(ind_total)-sum(ind), image_size_x,
+                        image_size_y, image_channels), dtype="uint8")
+        x_te[1] = np.zeros((sum(ind_total)-sum(ind), image_size_x,
+                        image_size_y, image_channels), dtype="uint8")
+    else:
+        x_tr = np.zeros((sum(ind)-len(sequences), image_size_x,
+                        image_size_y, image_channels*2), dtype="uint8")
+        x_te = np.zeros((sum(ind_total)-sum(ind), image_size_x,
+                        image_size_y, image_channels*2), dtype="uint8")
     y_tr[0] = np.zeros((sum(ind)-len(sequences), 3))
     y_tr[1] = np.zeros((sum(ind)-len(sequences), 4))
     y_te[0] = np.zeros((sum(ind_total)-sum(ind), 3))
@@ -216,18 +228,29 @@ def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_rat
     for i in sequences:
 
         #Get training data for sequence i
-        x_tr[count_tr:count_tr+ind[i]-1, :, :, :image_channels] = images[i][:ind[i]-1, :, :, :]
-        x_tr[count_tr:count_tr+ind[i]-1, :, :, image_channels:] = images[i][1:ind[i], :, :, :]
+        if seperate_images:
+            x_tr[0][count_tr:count_tr+ind[i]-1, :, :, :] = images[i][:ind[i]-1, :, :, :]
+            x_tr[1][count_tr:count_tr+ind[i]-1, :, :, :] = images[i][1:ind[i], :, :, :]
+        else:
+            x_tr[count_tr:count_tr+ind[i]-1, :, :, :image_channels] = images[i][:ind[i]-1, :, :, :]
+            x_tr[count_tr:count_tr+ind[i]-1, :, :, image_channels:] = images[i][1:ind[i], :, :, :]
 
         y_tr[0][count_tr:count_tr+ind[i]-1, :] = poses[0][i][:ind[i]-1, :]
         y_tr[1][count_tr:count_tr+ind[i]-1, :] = poses[1][i][:ind[i]-1, :]
 
         #Get testing data for sequence i
-        x_te[count_te:count_te+(ind_total[i]-ind[i]),
-             :, :, :image_channels] = images[i][(ind[i]-1):-1, :, :, :]
+        if seperate_images:
+            x_te[0][count_te:count_te+(ind_total[i]-ind[i]),
+                :, :, :] = images[i][(ind[i]-1):-1, :, :, :]
 
-        x_te[count_te:count_te+(ind_total[i]-ind[i]),
-             :, :, image_channels:] = images[i][ind[i]:, :, :, :]
+            x_te[1][count_te:count_te+(ind_total[i]-ind[i]),
+                :, :, :] = images[i][ind[i]:, :, :, :]
+        else:
+            x_te[count_te:count_te+(ind_total[i]-ind[i]),
+                :, :, :image_channels] = images[i][(ind[i]-1):-1, :, :, :]
+
+            x_te[count_te:count_te+(ind_total[i]-ind[i]),
+                :, :, image_channels:] = images[i][ind[i]:, :, :, :]
 
         y_te[0][count_te:count_te+(ind_total[i]-ind[i]), :] = poses[0][i][ind[i]-1:, :]
         y_te[1][count_te:count_te+(ind_total[i]-ind[i]), :] = poses[1][i][ind[i]-1:, :]
@@ -243,3 +266,5 @@ def test_datatool():
     uses sequence 1 (the smallest sequence)
     '''
     get_training_data([1])
+    get_training_data([1],seperate_images=False)
+#test_datatool()
