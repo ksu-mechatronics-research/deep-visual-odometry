@@ -1,5 +1,5 @@
 # The Model of DeepVO
-from keras.layers import Input, Merge
+from keras.layers import Input
 from keras.layers.core import Dense, Dropout, Activation, Flatten, Lambda
 from keras.layers.convolutional import Convolution2D, MaxPooling2D
 from keras.layers.normalization import BatchNormalization
@@ -13,8 +13,8 @@ from keras import backend as K #enable tensorflow functions
 
 def create_model():
     """
-    This model is designed to take in images and give multiple outputs. 
-    Here is what the network was designed for: 
+    This model is designed to take in images and give multiple outputs.
+    Here is what the network was designed for:
 
     Inputs:
     128x128X6 RGB images stacked (RGBRGB)
@@ -48,7 +48,7 @@ def create_model():
     # Delta Translation output
     translation_proc = Dense(3, init='normal')(x)
     vector_translation = Activation(PReLU(), name='translation')(translation_proc)
-    
+
     # Delta rotation in quaternion form
     rotation_proc = Dense(64, activation='relu')(x)
     rotation_proc = Dense(64, activation='relu')(rotation_proc)
@@ -61,22 +61,21 @@ def create_model():
     return model
 
 def normalize_quaternion(x):
-    "use tensorflow normalize function on this layer to ensure valid quaternion rotation"
+    "Use tensorflow normalize function on this layer to ensure valid quaternion rotation"
     x = K.l2_normalize(x, axis=1)
     return x
 
 
 def train_model(model, Xtr, Ytr, Xte, Yte, save_path=None):
     "Note: y should be [[translation],[quat rotation]]"
-    
-    model.compile(loss='mean_squared_error', optimizer='adam',
-                                        metrics=['mean_absolute_error'])
+
+    model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mean_absolute_error'])
 
     history = model.fit(Xtr, Ytr, validation_split=0.2, batch_size=8, nb_epoch=30, verbose=1)
 
     score = model.evaluate(Xte, Yte, verbose=1)
 
-    if (save_path != None):
+    if save_path:
         model.save(save_path)
 
     return score, history

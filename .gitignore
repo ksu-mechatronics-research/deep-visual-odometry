@@ -1,6 +1,12 @@
 # keras model data
 *.h5
 
+#vscode file
+.vscode
+
+#dataset directory
+dataset
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
