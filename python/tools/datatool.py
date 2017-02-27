@@ -9,42 +9,33 @@ from scipy.misc import imread
 def load_images(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], img_root='processed_imgs_128'):
     '''
     Load images from KITTI dataset. Pass in dir to change the images to use.
-
     Gets images from:
-
         deep-visual-odometry/dataset/<img_root>/sequence(0-11)
-
     args:
-
         sequences:
-
             sequences to grab images from (defaults 0-11)
 
         img_root:
-
             folder to grab images from
 
     returns:
-
         list of 11 lists,
 
         if i in sequences:
-
             list[i] = np.array(<images in sequence i>,x,y,image_channels)
 
         if i not in sequences:
-
             list[i] = #empty list
 
     Ex: dir = 'processed_imgs_128'
-
     gets data from:
 
         deep-visual-odometry/dataset/processed_imgs_128/sequence#
     '''
 
     #origional: images_directory = "/home/sexy/Documents/dataset/processed_imgs_128/sequence"
-    images_directory = os.path.join('..', '..', 'dataset', img_root, 'sequence')
+    PATH = os.path.dirname(os.path.abspath(__file__))
+    images_directory = os.path.join(PATH, '..', '..', 'dataset', img_root, 'sequence')
 
     list_x = []
 
@@ -74,33 +65,26 @@ def load_poses(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]):
     Load poses from KITTI dataset.
 
     Directory Structure (kitta dataset):
-
         deep-visual-odometry/dataset/
 
     args:
-
         sequences:
-
             sequences to grab poses from (defaults 0-11)
 
     returns:
-
         list of 2 list, each containing 11 lists (list[0,1][1,...,11],
 
         if i in sequences:
-
             list[0][i] = relative delta translation (numpy array (1x3))
-
             list[1][i] = relative quaternion rotation (numpy array (1x4))
 
         if i not in sequences:
-
             list[0][i] = empty list
-
             list[1][i] = empty list
     '''
     # original: poses_directory = "/home/sexy/Documents/dataset/"
-    poses_directory = os.path.join('..', '..', 'dataset')
+    PATH = os.path.dirname(os.path.abspath(__file__))
+    poses_directory = os.path.join(PATH, '..', '..', 'dataset')
     list_y = [[], []]
     for i in range(11):
         if i in sequences:
@@ -139,47 +123,36 @@ def load_poses(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]):
             list_y[1].append([])
     return list_y
 
-def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_ratio=(0.8), image_dir='', seperate_images=False):
+def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_ratio=(0.8), image_dir='', seperate_images=False, no_quaternions=False):
     '''
     get training data from the KITTI dataset
-
     args:
-
         sequences:
-
             List of training sequences to use
 
         training_ratio:
-
             fraction of available data to include in train (default to 4/5)
 
         image_dir:
-
             directory to load images from
 
     returns:
-
         x_tr:
-
             train imput data
 
         y_tr:
-
             train output data: [0]=translations, [1]=rotations
 
         x_te:
-
             test inputs
 
         y_te:
-
             test outputs: [0]=translations, [1]=rotations
     '''
 
     ind = []
     ind_total = []
-    y_tr = [[], []]
-    y_te = [[], []]
+
 
     #load data
     if image_dir:
@@ -218,10 +191,17 @@ def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_rat
                         image_size_y, image_channels*2), dtype="uint8")
         x_te = np.zeros((sum(ind_total)-sum(ind), image_size_x,
                         image_size_y, image_channels*2), dtype="uint8")
-    y_tr[0] = np.zeros((sum(ind)-len(sequences), 3))
-    y_tr[1] = np.zeros((sum(ind)-len(sequences), 4))
-    y_te[0] = np.zeros((sum(ind_total)-sum(ind), 3))
-    y_te[1] = np.zeros((sum(ind_total)-sum(ind), 4))
+    
+    if no_quaternions:
+        y_tr = np.zeros((sum(ind)-len(sequences), 3))
+        y_te = np.zeros((sum(ind_total)-sum(ind), 3))
+    else:
+        y_tr = [[], []]
+        y_te = [[], []]
+        y_tr[0] = np.zeros((sum(ind)-len(sequences), 3))
+        y_tr[1] = np.zeros((sum(ind)-len(sequences), 4))
+        y_te[0] = np.zeros((sum(ind_total)-sum(ind), 3))
+        y_te[1] = np.zeros((sum(ind_total)-sum(ind), 4))
 
     count_tr = 0
     count_te = 0
@@ -234,9 +214,11 @@ def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_rat
         else:
             x_tr[count_tr:count_tr+ind[i]-1, :, :, :image_channels] = images[i][:ind[i]-1, :, :, :]
             x_tr[count_tr:count_tr+ind[i]-1, :, :, image_channels:] = images[i][1:ind[i], :, :, :]
-
-        y_tr[0][count_tr:count_tr+ind[i]-1, :] = poses[0][i][:ind[i]-1, :]
-        y_tr[1][count_tr:count_tr+ind[i]-1, :] = poses[1][i][:ind[i]-1, :]
+        if no_quaternions:
+            y_tr[count_tr:count_tr+ind[i]-1, :] = poses[0][i][:ind[i]-1, :]
+        else:
+            y_tr[0][count_tr:count_tr+ind[i]-1, :] = poses[0][i][:ind[i]-1, :]
+            y_tr[1][count_tr:count_tr+ind[i]-1, :] = poses[1][i][:ind[i]-1, :]
 
         #Get testing data for sequence i
         if seperate_images:
@@ -252,8 +234,11 @@ def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_rat
             x_te[count_te:count_te+(ind_total[i]-ind[i]),
                 :, :, image_channels:] = images[i][ind[i]:, :, :, :]
 
-        y_te[0][count_te:count_te+(ind_total[i]-ind[i]), :] = poses[0][i][ind[i]-1:, :]
-        y_te[1][count_te:count_te+(ind_total[i]-ind[i]), :] = poses[1][i][ind[i]-1:, :]
+        if no_quaternions:
+            y_te[count_te:count_te+(ind_total[i]-ind[i]), :] = poses[0][i][ind[i]-1:, :]
+        else:
+            y_te[0][count_te:count_te+(ind_total[i]-ind[i]), :] = poses[0][i][ind[i]-1:, :]
+            y_te[1][count_te:count_te+(ind_total[i]-ind[i]), :] = poses[1][i][ind[i]-1:, :]
 
         count_tr += ind[i]-1
         count_te += (ind_total[i]-ind[i])
@@ -266,5 +251,5 @@ def test_datatool():
     uses sequence 1 (the smallest sequence)
     '''
     get_training_data([1])
-    get_training_data([1],seperate_images=False)
-#test_datatool()
+    get_training_data([1], seperate_images=False, no_quaternions=True)
+test_datatool()
