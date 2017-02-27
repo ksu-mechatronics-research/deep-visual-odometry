@@ -136,6 +136,15 @@ def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_rat
         image_dir:
             directory to load images from
 
+        seperate_images: 
+            bool wheteher to have first and second images 
+
+        no_quaternions:
+            bool whether to include quaternions as second list of output
+
+        no_test:
+            do not retrun test sequences
+
     returns:
         x_tr:
             train imput data
@@ -143,10 +152,10 @@ def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_rat
         y_tr:
             train output data: [0]=translations, [1]=rotations
 
-        x_te:
+        x_te: (if no_test is false)
             test inputs
 
-        y_te:
+        y_te: (if no_test is false)
             test outputs: [0]=translations, [1]=rotations
     '''
 
