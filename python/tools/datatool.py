@@ -128,7 +128,7 @@ def load_poses(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], path=''):
             list_y[1].append([])
     return list_y
 
-def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_ratio=(0.8), image_dir='', seperate_images=False, no_quaternions=False, no_test=False, data_path=''):
+def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_ratio=(0.8), image_dir='', seperate_images=False, no_quaternions=False, data_path='', no_test=False):
     '''
     get training data from the KITTI dataset
     args:
@@ -136,7 +136,8 @@ def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_rat
             List of training sequences to use
 
         training_ratio:
-            fraction of available data to include in train (default to 4/5)
+            fraction of available data to include in train (default to 4/5),
+            function will not return test data if it is set to 1.0
 
         image_dir:
             directory to load images from
@@ -173,16 +174,18 @@ def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_rat
         y_tr:
             train output data: [0]=translations, [1]=rotations
 
-        x_te: (if no_test is false)
+        x_te: (if training ratio is not 1.0)
             test inputs
 
-        y_te: (if no_test is false)
+        y_te: (if training ratio is not 1.0)
             test outputs: [0]=translations, [1]=rotations
     '''
 
     ind = []
     ind_total = []
 
+    if no_test:
+        training_ratio = 1.0
 
     #load data
     if data_path:
@@ -228,7 +231,7 @@ def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_rat
                         image_size_y, image_channels*2), dtype="uint8")
         x_te = np.zeros((sum(ind_total)-sum(ind), image_size_x,
                         image_size_y, image_channels*2), dtype="uint8")
-    
+
     if no_quaternions:
         y_tr = np.zeros((sum(ind)-len(sequences), 3))
         y_te = np.zeros((sum(ind_total)-sum(ind), 3))
@@ -279,10 +282,11 @@ def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_rat
 
         count_tr += ind[i]-1
         count_te += (ind_total[i]-ind[i])
-    
-    if(no_test):
+
+    if training_ratio == 1.0:
         return x_tr, y_tr
-    return x_tr, y_tr, x_te, y_te
+    else:
+        return x_tr, y_tr, x_te, y_te
 
 def test_datatool():
     '''
