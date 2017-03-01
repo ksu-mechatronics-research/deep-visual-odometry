@@ -90,7 +90,7 @@ def load_poses(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], global_trans=False,
         poses_directory = path
     else:
         poses_directory = os.path.join(PATH, '..', '..', 'dataset')
-    list_y = [[], []]
+    poses = [[], []]
     for i in range(11):
         if i in sequences:
             #Get and append odometry data
@@ -113,8 +113,8 @@ def load_poses(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], global_trans=False,
             delta_trans[:-1, :] = translations[1:, :]-translations[:-1, :]
 
             if global_trans:
-                list_y[0].append(delta_trans[:-1])
-                list_y[1].append([])
+                poses[0].append(delta_trans[:-1])
+                poses[1].append([])
                 continue
 
             #Correct translations to provide relative motion from car's perspective
@@ -125,13 +125,13 @@ def load_poses(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], global_trans=False,
             #get rotations between frames
             delta_quat[:-1] = quaternions[1:]/quaternions[:-1]
 
-            list_y[0].append(relative_delta_trans[:-1])
-            list_y[1].append(q.as_float_array(delta_quat[:-1]))
+            poses[0].append(relative_delta_trans[:-1])
+            poses[1].append(q.as_float_array(delta_quat[:-1]))
         else:
             #append empty sequence if not in sequences
-            list_y[0].append([])
-            list_y[1].append([])
-    return list_y
+            poses[0].append([])
+            poses[1].append([])
+    return poses
 
 def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_ratio=(1.0), image_dir='', seperate_images=False, no_quaternions=False, global_trans=False, data_path='', no_test=False):
     '''
