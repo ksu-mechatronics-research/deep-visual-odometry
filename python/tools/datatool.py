@@ -304,14 +304,4 @@ def test_datatool():
     get_training_data([1])
     get_training_data([1], seperate_images=False, no_quaternions=True)
     get_training_data([1], seperate_images=True, global_trans=True)
-test_datatool()
-
-
-
-
-
-
-
-
-
-
+#test_datatool()
