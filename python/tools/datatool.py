@@ -62,7 +62,7 @@ def load_images(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], img_root='processe
             list_x.append([])
     return list_x
 
-def load_poses(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], path=''):
+def load_poses(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], global_trans=False, path=''):
     '''
     Load poses from KITTI dataset.
 
@@ -90,7 +90,7 @@ def load_poses(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], path=''):
         poses_directory = path
     else:
         poses_directory = os.path.join(PATH, '..', '..', 'dataset')
-    list_y = [[], []]
+    poses = [[], []]
     for i in range(11):
         if i in sequences:
             #Get and append odometry data
@@ -112,6 +112,11 @@ def load_poses(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], path=''):
             #Get translations between frames
             delta_trans[:-1, :] = translations[1:, :]-translations[:-1, :]
 
+            if global_trans:
+                poses[0].append(delta_trans[:-1])
+                poses[1].append([])
+                continue
+
             #Correct translations to provide relative motion from car's perspective
             for k in range(len(delta_trans)-1):
                 relative_delta_trans[k] = (quaternions[k]* q.quaternion(0., *delta_trans[k])
@@ -120,15 +125,15 @@ def load_poses(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], path=''):
             #get rotations between frames
             delta_quat[:-1] = quaternions[1:]/quaternions[:-1]
 
-            list_y[0].append(relative_delta_trans[:-1])
-            list_y[1].append(q.as_float_array(delta_quat[:-1]))
+            poses[0].append(relative_delta_trans[:-1])
+            poses[1].append(q.as_float_array(delta_quat[:-1]))
         else:
             #append empty sequence if not in sequences
-            list_y[0].append([])
-            list_y[1].append([])
-    return list_y
+            poses[0].append([])
+            poses[1].append([])
+    return poses
 
-def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_ratio=(0.8), image_dir='', seperate_images=False, no_quaternions=False, data_path='', no_test=False):
+def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_ratio=(1.0), image_dir='', seperate_images=False, no_quaternions=False, global_trans=False, data_path='', no_test=False):
     '''
     get training data from the KITTI dataset
     args:
@@ -136,30 +141,30 @@ def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_rat
             List of training sequences to use
 
         training_ratio:
-            fraction of available data to include in train (default to 4/5),
+            fraction of available data to include in train (default 1.0),
             function will not return test data if it is set to 1.0
 
         image_dir:
             directory to load images from
-            
+
         seperate_images:
             True: format the x_tr and x_te as a list of two images
             False: format the x_tr and x_te as a stacked image of RGBRGB
-        
+
         no_quaternions:
             True: returns only a y_tr and y_te of translations
             False: returns y_tr and y_te of translations and rotations
-            
+
         no_test:
             True: return only x_tr and y_tr
             False: returns all x_tr, y_tr, x_te, y_te
-        
+
         path:
             provides the path to the dataset directory
             defaults to Alec's Windows configurations
 
-        seperate_images: 
-            bool wheteher to have first and second images 
+        seperate_images:
+            bool wheteher to have first and second images
 
         no_quaternions:
             bool whether to include quaternions as second list of output
@@ -187,6 +192,9 @@ def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_rat
     if no_test:
         training_ratio = 1.0
 
+    if global_trans:
+        no_quaternions = True
+
     #load data
     if data_path:
         if image_dir:
@@ -199,8 +207,8 @@ def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_rat
             images = load_images(sequences, image_dir)
         else:
             images = load_images(sequences)
-        poses = load_poses(sequences)
-    
+        poses = load_poses(sequences, global_trans=global_trans)
+
     #set dimenstions of images
     image_channels = images[sequences[0]].shape[3]
     image_size_y = images[sequences[0]].shape[2]
@@ -295,14 +303,5 @@ def test_datatool():
     '''
     get_training_data([1])
     get_training_data([1], seperate_images=False, no_quaternions=True)
+    get_training_data([1], seperate_images=True, global_trans=True)
 #test_datatool()
-
-
-
-
-
-
-
-
-
-
