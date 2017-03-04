@@ -4,13 +4,12 @@ import os
 import sys
 import json
 import matplotlib.pyplot as plt
+from model_0 import train_model, create_model
 
 #Our datatool
 PATH = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(PATH, "..", "..", "python", "tools"))
-sys.path.append(os.path.join(PATH, ".."))
 import datatool
-from model_0 import train_model, create_model
 
 netNum = '0'
 run = 0
