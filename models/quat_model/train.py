@@ -9,7 +9,7 @@ PATH = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(PATH,"..","..","python","tools"))
 import datatool
 
-def train_model(MODEL, x_tr, y_tr, x_te, y_te, save_path=None):
+def train_model(MODEL, x_tr, y_tr,save_path=None):
     "Note: y should be [[translation],[quat rotation]]"
 
     MODEL.compile(loss='mean_squared_error', 
@@ -18,12 +18,10 @@ def train_model(MODEL, x_tr, y_tr, x_te, y_te, save_path=None):
 
     history = MODEL.fit(x_tr, y_tr, validation_split=0.2, batch_size=32, nb_epoch=10, verbose=1)
 
-    score = MODEL.evaluate(x_te, y_te, verbose=1)
-
     if save_path:
         MODEL.save(save_path)
 
-    return score, history
+    return history
 
 net_num = '0'
 run = 0
@@ -35,13 +33,12 @@ sequences = []
 for i in range(10):
     sequences.append(i)
 
-x_tr, y_tr, x_te, y_te = datatool.get_training_data(sequences, training_ratio=(1))
+x_tr, y_tr = datatool.get_training_data(sequences, training_ratio=(1))
 
-score, history = train_model(MODEL, x_tr, y_tr, x_te, y_te,
+history = train_model(MODEL, x_tr, y_tr,
                              os.path.join(PATH, "train_"+str(run)+".h5"))
 
 with open(os.path.join(PATH, "history_"+str(run)+".json"), 'w') as f:
-    json.dump(score, f, indent=4)
-    json.dump(history, f, indent=4)
+    json.dump(history.history, f, indent=4)
 
 
