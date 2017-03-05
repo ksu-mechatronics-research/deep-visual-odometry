@@ -1,6 +1,6 @@
 # The relative translation and rotation model labeled siamese_quat
 from keras.layers import Input, merge
-from keras.layers.core import Dense, Dropout, Activation, Flatten, Lambda
+from keras.layers.core import Dense, Dropout, Activation, Flatten, Lambda, Reshape
 from keras.layers.convolutional import Convolution2D, MaxPooling2D, Convolution3D
 from keras.layers.normalization import BatchNormalization
 from keras.models import Model
@@ -31,19 +31,33 @@ def create_model():
     Rotation between images in quaternion form
     """
     #input images:
-    input_initial = Input(shape=(128, 128, 6), name='input_img_initial')
-    x = Convolution3D(64, 3, 3, 3, subsample=(1,1,3), border_mode='same')(input_initial)
+    input_initial = Input(shape=(128, 128, 6))
+    x = Reshape((128, 128, 6, 1))(input_initial)
+    
+    #3d feature extraction convolution (siamese)
+    x = Convolution3D(64, 3, 3, 3, subsample=(1,1,3), border_mode='same')(x)
     x=BatchNormalization()(x)
     x=Activation(PReLU())(x)
+    print(x)
+    x = Reshape((128, 128, 2, 64))(x)
 
+	#Comparison convolutions
     x = Convolution3D(128, 8, 8, 2, subsample=(8,8,2))(x)
     x=BatchNormalization()(x)
     x=Activation(PReLU())(x)
+    print(x)
+    x = Reshape((16, 16, 128))(x)
+    
 
     x = Convolution2D(256, 2, 2, subsample=(1,1))(x)
     x = BatchNormalization()(x)
     x=Activation(PReLU())(x)
+    
+    # Potentially add fire modules instead of regular convolution2d
+    #x = fire_module(x, fire_id=0, squeeze=32, expand=128)
+    #x = fire_module(x, fire_id=0, squeeze=64, expand=25)
 
+	#Flatten output, fully connected:
     x = Flatten()(x)
 
     x = Dense(2048)(x)
@@ -54,8 +68,7 @@ def create_model():
     x = BatchNormalization()(x)
     x=Activation(PReLU())(x)
 
-    #x = fire_module(x, fire_id=0, squeeze=32, expand=128)
-    #x = fire_module(x, fire_id=0, squeeze=64, expand=25)
+    
     # Delta Translation output
     vector_translation = Dense(3, init='normal', activation='linear', name='translation')(x)
 

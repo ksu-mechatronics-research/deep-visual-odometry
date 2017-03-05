@@ -16,7 +16,7 @@ def train_model(MODEL, x_tr, y_tr,save_path=None):
                 optimizer=Adam(lr=0.006, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0),
                 metrics=['mean_absolute_error'])
 
-    history = MODEL.fit(x_tr, y_tr, validation_split=0.2, batch_size=32, nb_epoch=10, verbose=1)
+    history = MODEL.fit(x_tr, y_tr, validation_split=0.2, batch_size=16, nb_epoch=10, verbose=1)
 
     if save_path:
         MODEL.save(save_path)
@@ -29,9 +29,7 @@ run = 0
 MODEL = model.create_model()
 
 #Use sequences 0-9
-sequences = []
-for i in range(10):
-    sequences.append(i)
+sequences = [0, 1, 4, 5, 6, 7, 8, 9, 10]
 
 x_tr, y_tr = datatool.get_training_data(sequences, training_ratio=(1))
 
