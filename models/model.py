@@ -118,7 +118,7 @@ def train_model(model, Xtr, Ytr, save_path=None):
     '''
     model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mean_absolute_error'])
 
-    history = model.fit(Xtr, Ytr, validation_split=0.2, batch_size=1, nb_epoch=30, verbose=1)
+    history = model.fit(Xtr, Ytr, validation_split=0.2, batch_size=8, nb_epoch=30, verbose=1)
 
     if save_path != None:
         model.save(save_path)

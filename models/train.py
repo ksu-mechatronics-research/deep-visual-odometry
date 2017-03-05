@@ -36,12 +36,15 @@ def setup_model(modelType, modelNumber, paramDict):
     else:
         Xtr, Ytr = datatool.get_training_data(sequences=[0,1,4,5,6,7,8,9,10] ,training_ratio=(1), no_test=True)
     
-    history = train_model(model, Xtr, Ytr, save_path=os.path.join(path, "train_"+str(run)+".h5"))
+    history = train_model(model, Xtr, Ytr, save_path=os.path.join(path, "gen_train_"+str(run)+".h5"))
 
-    with open(os.path.join(path, "history_"+str(run)+".json"), 'w') as f:
+    with open(os.path.join(path, "gen_history_"+str(run)+".json"), 'w') as f:
         json.dump(history.history, f, indent=4)
 
-with open('model_0.json') as data_file:    
+# test run the modular models
+with open('model_0.json') as data_file:
     params = json.load(data_file)
 
 setup_model('global', 0, params)
+setup_model('relative', 0, params)
+setup_model('quaternion', 0, params)
