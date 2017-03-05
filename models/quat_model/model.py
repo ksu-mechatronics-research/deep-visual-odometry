@@ -37,21 +37,24 @@ def create_model():
     #3d feature extraction convolution (siamese)
     x = Convolution3D(64, 3, 3, 3, subsample=(1,1,3), border_mode='same')(x)
     x=BatchNormalization()(x)
-    x=Activation(PReLU())(x)
-    print(x)
+    x=Activation('relu')(x)
+    x=Dropout(0.3)(x)
+    #print(x)
     x = Reshape((128, 128, 2, 64))(x)
 
 	#Comparison convolutions
     x = Convolution3D(128, 8, 8, 2, subsample=(8,8,2))(x)
     x=BatchNormalization()(x)
-    x=Activation(PReLU())(x)
-    print(x)
+    x=Activation('relu')(x)
+    x=Dropout(0.3)(x)
+    #print(x)
     x = Reshape((16, 16, 128))(x)
     
 
     x = Convolution2D(256, 2, 2, subsample=(1,1))(x)
     x = BatchNormalization()(x)
-    x=Activation(PReLU())(x)
+    x = Activation('relu')(x)
+    x = Dropout(0.3)(x)
     
     # Potentially add fire modules instead of regular convolution2d
     #x = fire_module(x, fire_id=0, squeeze=32, expand=128)
@@ -62,12 +65,13 @@ def create_model():
 
     x = Dense(2048)(x)
     x = BatchNormalization()(x)
-    x=Activation(PReLU())(x)
+    x = Activation('relu')(x)
+    x = Dropout(0.3)(x)
 
     x = Dense(1024)(x)
     x = BatchNormalization()(x)
-    x=Activation(PReLU())(x)
-
+    x = Activation('relu')(x)
+    x = Dropout(0.3)(x)
     
     # Delta Translation output
     vector_translation = Dense(3, init='normal', activation='linear', name='translation')(x)
