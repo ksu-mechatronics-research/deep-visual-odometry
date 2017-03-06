@@ -52,10 +52,10 @@ def create_model():
     x = Reshape((40, 40, 48))(x)
     
 
-    #x = Convolution2D(64, 3, 3, subsample=(1,1))(x)
-    #x = BatchNormalization()(x)
-    #x = Activation('relu')(x)
-    #x = Dropout(0.3)(x)
+    x = Convolution2D(64, 1, 1, subsample=(1,1), W_regularizer=l2(0.01))(x)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    x = Dropout(0.3)(x)
     
     # Potentially add fire modules instead of regular convolution2d
     #x = fire_module(x, fire_id=0, squeeze=32, expand=128)
