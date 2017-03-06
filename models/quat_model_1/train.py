@@ -13,7 +13,7 @@ def train_model(MODEL, x_tr, y_tr,save_path=None):
     "Note: y should be [[translation],[quat rotation]]"
 
     MODEL.compile(loss='mean_squared_error', 
-                optimizer=Adam(lr=0.01, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0),
+                optimizer=Adam(lr=0.006, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0),
                 metrics=['mean_absolute_error'], loss_weights=[1., 100.])
 
     history = MODEL.fit(x_tr, y_tr, validation_split=0.2, batch_size=64, nb_epoch=15, verbose=1)
@@ -23,11 +23,11 @@ def train_model(MODEL, x_tr, y_tr,save_path=None):
 
     return history
 
-run = 0
+run = 1 
 
 MODEL = model.create_model()
 
-#Use sequences 0-9
+# Choose sequences
 sequences = [0, 1, 4, 5, 6, 7, 8, 9, 10]
 
 x_tr, y_tr = datatool.get_training_data(sequences, training_ratio=(1))

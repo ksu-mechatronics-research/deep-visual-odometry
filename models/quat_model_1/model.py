@@ -44,7 +44,7 @@ def create_model():
     x = Reshape((128, 128, 2, 32))(x)
 
 	#Comparison convolutions
-    x = Convolution3D(48, 9, 9, 2, subsample=(3,3,2))(x)
+    x = Convolution3D(48, 9, 9, 2, subsample=(3,3,2), W_regularizer=l2(0.01))(x)
     x=BatchNormalization()(x)
     x=Activation('relu')(x)
     x=Dropout(0.3)(x)
@@ -52,10 +52,10 @@ def create_model():
     x = Reshape((40, 40, 48))(x)
     
 
-    x = Convolution2D(64, 1, 1, subsample=(1,1), W_regularizer=l2(0.01))(x)
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
-    x = Dropout(0.3)(x)
+    #x = Convolution2D(64, 1, 1, subsample=(1,1), W_regularizer=l2(0.01))(x)
+    #x = BatchNormalization()(x)
+    #x = Activation('relu')(x)
+    #x = Dropout(0.3)(x)
     
     # Potentially add fire modules instead of regular convolution2d
     #x = fire_module(x, fire_id=0, squeeze=32, expand=128)
@@ -63,6 +63,11 @@ def create_model():
 
 	#Flatten output, fully connected:
     x = Flatten()(x)
+
+    x = Dense(1024, W_regularizer=l2(0.02), activity_regularizer=activity_l2(0.02))(x)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    #x = Dropout(0.3)(x)
 
     x = Dense(1024, W_regularizer=l2(0.02), activity_regularizer=activity_l2(0.02))(x)
     x = BatchNormalization()(x)
