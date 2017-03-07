@@ -19,7 +19,7 @@ def setup_model(modelType, modelNumber, paramDict):
     elif(modelType == 'relative'):
         path = os.path.join(PATH, "relative_models")
     elif(modelType == 'quaternion'):
-        path = os.path.join(PATH, "quat_model")
+        path = os.path.join(PATH, "quat_models")
     else:
         print ("error: modelType can only be either global, relative, or quaternion")
         return -1;
