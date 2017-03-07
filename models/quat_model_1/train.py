@@ -16,14 +16,14 @@ def train_model(MODEL, x_tr, y_tr,save_path=None):
                 optimizer=Adam(lr=0.006, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0),
                 metrics=['mean_absolute_error'], loss_weights=[1., 100.])
 
-    history = MODEL.fit(x_tr, y_tr, validation_split=0.2, batch_size=64, nb_epoch=15, verbose=1)
+    history = MODEL.fit(x_tr, y_tr, validation_split=0.2, batch_size=64, nb_epoch=45, verbose=1)
 
     if save_path:
         MODEL.save(save_path)
 
     return history
 
-run = 1 
+run = 2
 
 MODEL = model.create_model()
 

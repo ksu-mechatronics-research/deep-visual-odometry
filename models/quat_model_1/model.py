@@ -44,12 +44,12 @@ def create_model():
     x = Reshape((128, 128, 2, 32))(x)
 
 	#Comparison convolutions
-    x = Convolution3D(48, 9, 9, 2, subsample=(3,3,2), W_regularizer=l2(0.01))(x)
+    x = Convolution3D(64, 9, 9, 2, subsample=(3,3,2), W_regularizer=l2(0.0025))(x)
     x=BatchNormalization()(x)
     x=Activation('relu')(x)
-    x=Dropout(0.3)(x)
+    #x=Dropout(0.3)(x)
     #print(x)
-    x = Reshape((40, 40, 48))(x)
+    x = Reshape((40, 40, 64))(x)
     
 
     #x = Convolution2D(64, 1, 1, subsample=(1,1), W_regularizer=l2(0.01))(x)
@@ -64,12 +64,12 @@ def create_model():
 	#Flatten output, fully connected:
     x = Flatten()(x)
 
-    x = Dense(1024, W_regularizer=l2(0.02), activity_regularizer=activity_l2(0.02))(x)
+    x = Dense(1024, W_regularizer=l2(0.01), activity_regularizer=activity_l2(0.01))(x)
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
     #x = Dropout(0.3)(x)
 
-    x = Dense(1024, W_regularizer=l2(0.02), activity_regularizer=activity_l2(0.02))(x)
+    x = Dense(256, W_regularizer=l2(0.01))(x)
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
     #x = Dropout(0.3)(x)
