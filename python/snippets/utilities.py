@@ -11,7 +11,7 @@ import formatData
 # output = (0 == entire sequence) (1 == train data) (2 == test data)
 def plot_model(netNum = '3', which_model = 'train_7.h5', tr_ratio = (8/10.0)):
     model_dir = '/home/sexy/source/deep-visual-odometry/models/'
-    
+
     model = load_model(model_dir+"alexNet_"+netNum+"/"+which_model)
 
     image_data = formatData.load_data()
@@ -113,14 +113,3 @@ def plot_model(netNum = '3', which_model = 'train_7.h5', tr_ratio = (8/10.0)):
 
 plot_model()
 plot_model(netNum = '7', which_model = 'train_0.h5')
-
-
-
-
-
-
-
-
-
-
-
