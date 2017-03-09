@@ -57,7 +57,7 @@ def normalize_quaternion(x):
 def add_quaternion_dense(model):
     # Delta Translation output
     translation_proc = Dense(3, init='normal')(model)
-    vector_translation = Activation(PReLU(), name='translation')(translation_proc)
+    vector_translation = Activation('linear', name='translation')(translation_proc)
 
     # Delta rotation in quaternion form
     rotation_proc = Dense(64, activation='relu')(model)
@@ -93,15 +93,13 @@ def create_model(conv_params, dense_params, quaternion=False):
     model = Flatten()(model)
     for i, param in enumerate(dense_params):
         model = add_dense(model, param[0], param[1])
-        # check if this is the last iteration
-        if i == len(dense_params)-1:
-            if quaternion == False:
-                model = add_dense(model, 3, 'linear')
-    
-    if quaternion:
+        
+    if quaternion == False:
+        model = add_dense(model, 3, 'linear')
+        return Model(input=input_shape, output=model)
+    else:
         trans, quat = add_quaternion_dense(model)
         return Model(input=input_shape, output=[trans, quat])
-    return Model(input=input_shape, output=model)
 
 def train_model(model, Xtr, Ytr, save_path=None):
     '''
@@ -118,7 +116,7 @@ def train_model(model, Xtr, Ytr, save_path=None):
     '''
     model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mean_absolute_error'])
 
-    history = model.fit(Xtr, Ytr, validation_split=0.2, batch_size=8, nb_epoch=30, verbose=1)
+    history = model.fit(Xtr, Ytr, validation_split=0.2, batch_size=8, nb_epoch=1, verbose=1)
 
     if save_path != None:
         model.save(save_path)

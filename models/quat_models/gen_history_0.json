@@ -1,0 +1,32 @@
+{
+    "loss": [
+        0.34788977827517514
+    ],
+    "val_rotation_mean_absolute_error": [
+        0.007147592638954898
+    ],
+    "rotation_loss": [
+        0.006681637076913134
+    ],
+    "translation_mean_absolute_error": [
+        0.37828467613179606
+    ],
+    "val_translation_mean_absolute_error": [
+        0.46851036715695765
+    ],
+    "rotation_mean_absolute_error": [
+        0.018133405601008002
+    ],
+    "val_translation_loss": [
+        0.4245603847765462
+    ],
+    "val_loss": [
+        0.42634874772337183
+    ],
+    "translation_loss": [
+        0.34120814165849506
+    ],
+    "val_rotation_loss": [
+        0.0017883642335631612
+    ]
+}

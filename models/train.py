@@ -5,6 +5,7 @@ import sys
 import json
 import matplotlib.pyplot as plt
 from model import train_model, create_model
+import gc
 
 #Our datatool
 PATH = os.path.dirname(os.path.abspath(__file__))
@@ -12,7 +13,6 @@ sys.path.append(os.path.join(PATH, "..", "python", "tools"))
 import datatool
 
 def setup_model(modelType, modelNumber, paramDict):
-    netNum = str(modelNumber)
     run = modelNumber
     if(modelType == 'global'):
         path = os.path.join(PATH, "global_models")
@@ -42,9 +42,11 @@ def setup_model(modelType, modelNumber, paramDict):
         json.dump(history.history, f, indent=4)
 
 # test run the modular models
-with open('model_0.json') as data_file:
-    params = json.load(data_file)
-
-setup_model('global', 0, params)
-setup_model('relative', 0, params)
-setup_model('quaternion', 0, params)
+for i in range(3):
+    with open('gen_models/model_'+str(i)+'.json') as data_file:
+        params = json.load(data_file)
+    
+    setup_model('global', i, params)
+    setup_model('relative', i, params)
+    setup_model('quaternion', i, params)
+    gc.collect()

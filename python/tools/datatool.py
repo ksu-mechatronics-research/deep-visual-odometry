@@ -293,6 +293,39 @@ def get_training_data(sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], training_rat
     else:
         return x_tr, y_tr, x_te, y_te
 
+def get_eval_data(load_initial_rotations=True, sequences=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]):
+    '''
+    gets evaluation data, returns initial_rotations by default
+
+    Returns list of concatenated images eval_data.
+
+    if i not in sequences:
+        eval_data[i] = empty list
+    '''
+    if load_initial_rotations:
+        initial_rotations = load_poses()[1][:][0]
+
+    images = load_images(sequences)
+    image_channels = images[sequences[0]].shape[3]
+    image_size_y = images[sequences[0]].shape[2]
+    image_size_x = images[sequences[0]].shape[1]
+
+    eval_data = [[], [], [], [], [], [], [], [], [], [], []]
+
+    for i in sequences:
+        eval_data[i] = np.ndarray((images[i].shape[0]-1, image_size_x,
+                                   image_size_y, image_channels*2), dtype="uint8")
+        eval_data[i][:, :, :, :image_channels] = images[i][:-1, :, :, :]
+        eval_data[i][:, :, :, image_channels:] = images[i][1:, :, :, :]
+
+    if load_initial_rotations:
+        return eval_data, initial_rotations
+    else:
+        return eval_data
+
+
+
+
 def test_datatool():
     '''
     Test function for datatool
