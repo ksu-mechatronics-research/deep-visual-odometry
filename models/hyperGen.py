@@ -3,12 +3,27 @@ import os
 import sys
 import json
 import random
+import numpy as np
+import matplotlib.pyplot as plt
 from datetime import datetime
 random.seed(datetime.now())
 
 PATH = os.path.dirname(os.path.abspath(__file__))
 
-for j in range(50):
+kernalNums = []
+for i in range(64, 361):
+    for ii in range(360-i):
+        kernalNums.append(i)
+
+"""
+array = np.zeros(10000)
+for i in range(10000):
+    array[i] = random.choice(kernalNums)
+plt.hist(array, bins=np.arange(array.min(), array.max()+1))
+plt.show()
+"""
+
+for j in range(3, 50):
     activations = ["prelu"]*5 + ["relu"]*3 + ["tanh"]*2
     poolings = [3]*8 + [5]*3 + [7]*2
 
@@ -17,7 +32,7 @@ for j in range(50):
     convolutions = []
     convolutionLayers = random.randint(2, 4)
     for i in range(convolutionLayers):
-        kernalNum = 8*random.randint(4, 50)
+        kernalNum = random.choice(kernalNums)
         kernalSize = 2*random.randint(1, 5)+1
         activation = random.choice(activations)
         poolSize = random.choice(poolings)
