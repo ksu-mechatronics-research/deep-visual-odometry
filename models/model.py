@@ -96,7 +96,7 @@ def create_model(conv_params, dense_params, quaternion=False):
     model = Flatten()(model)
     for i, param in enumerate(dense_params):
         model = add_dense(model, param[0], param[1], param[2])
-        
+
     if quaternion == False:
         model = add_dense(model, 3, 'linear', 0)
         return Model(input=input_shape, output=model)
