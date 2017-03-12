@@ -43,7 +43,7 @@ def setup_model(modelType, modelNumber, paramDict):
 
 # test run the modular models
 for i in range(3):
-    with open('gen_models/model_'+str(i)+'.json') as data_file:
+    with open(os.path.join(PATH, "gen_models", "model_"+str(i)+'.json')) as data_file:
         params = json.load(data_file)
     
     setup_model('global', i, params)
