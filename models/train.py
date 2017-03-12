@@ -30,11 +30,11 @@ def setup_model(modelType, modelNumber, paramDict):
         model = create_model(paramDict['convolution'], paramDict['dense'])
     
     if(modelType == 'global'):
-        Xtr, Ytr = datatool.get_training_data(sequences=[0,1,4,5,6,7,8,9,10], training_ratio=(1), no_test=True, no_quaternions=True, global_trans=True)
+        Xtr, Ytr = datatool.get_training_data(sequences=[0,1,2,3,4,6,7,8,10], training_ratio=(1), no_test=True, no_quaternions=True, global_trans=True)
     elif(modelType == 'relative'):
-        Xtr, Ytr = datatool.get_training_data(sequences=[0,1,4,5,6,7,8,9,10] ,training_ratio=(1), no_test=True, no_quaternions=True)
+        Xtr, Ytr = datatool.get_training_data(sequences=[0,1,2,3,4,6,7,8,10] ,training_ratio=(1), no_test=True, no_quaternions=True)
     else:
-        Xtr, Ytr = datatool.get_training_data(sequences=[0,1,4,5,6,7,8,9,10] ,training_ratio=(1), no_test=True)
+        Xtr, Ytr = datatool.get_training_data(sequences=[0,1,2,3,4,6,7,8,10] ,training_ratio=(1), no_test=True)
     
     history = train_model(model, Xtr, Ytr, save_path=os.path.join(path, "gen_train_"+str(run)+".h5"))
 
@@ -42,7 +42,7 @@ def setup_model(modelType, modelNumber, paramDict):
         json.dump(history.history, f, indent=4)
 
 # test run the modular models
-for i in range(3):
+for i in range(3, 50):
     with open(os.path.join(PATH, "gen_models", "model_"+str(i)+'.json')) as data_file:
         params = json.load(data_file)
     
