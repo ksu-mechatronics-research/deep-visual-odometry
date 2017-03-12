@@ -7,7 +7,7 @@ from keras.models import Model, Sequential
 from keras.layers.advanced_activations import PReLU
 from keras import backend as K #enable tensorflow functions
 
-def add_convolution(model, filters, kernalSize, activation, poolSize, poolStride):
+def add_convolution(model, filters, kernalSize, activation, poolSize, poolStride, dropout):
     '''
     returns a single convolution layer equiped with BatchNormalization, an activation, and MaxPooling2D
     This only contains Convolution2D
@@ -30,9 +30,10 @@ def add_convolution(model, filters, kernalSize, activation, poolSize, poolStride
     else:
         model = Activation(activation)(model)
     model = MaxPooling2D(pool_size=(poolSize, poolSize), strides=(poolStride, poolStride), border_mode='same')(model)
+    model = Dropout(dropout)(model)
     return model
 
-def add_dense(model, denseSize, activation):
+def add_dense(model, denseSize, activation, dropout):
     '''
     returns a single dense layer equiped with BatchNormalization, and an activation
     args:
@@ -47,6 +48,8 @@ def add_dense(model, denseSize, activation):
         model = PReLU()(model)
     else:
         model = Activation(activation)(model)
+    if dropout != 0:
+        model = Dropout(dropout)(model)
     return model
 
 def normalize_quaternion(x):
@@ -89,13 +92,13 @@ def create_model(conv_params, dense_params, quaternion=False):
     model = input_shape
 
     for i, param in enumerate(conv_params):
-        model = add_convolution(model, param[0], param[1], param[2], param[3], param[4])
+        model = add_convolution(model, param[0], param[1], param[2], param[3], param[4], param[5])
     model = Flatten()(model)
     for i, param in enumerate(dense_params):
-        model = add_dense(model, param[0], param[1])
+        model = add_dense(model, param[0], param[1], param[2])
         
     if quaternion == False:
-        model = add_dense(model, 3, 'linear')
+        model = add_dense(model, 3, 'linear', 0)
         return Model(input=input_shape, output=model)
     else:
         trans, quat = add_quaternion_dense(model)
