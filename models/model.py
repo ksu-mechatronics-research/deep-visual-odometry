@@ -1,4 +1,6 @@
-# The Model of DeepVO using relative orientation 
+'''
+Contains functions to add parts to new models.
+'''
 from keras.layers import Input, Merge
 from keras.layers.core import Dense, Dropout, Activation, Flatten, Lambda
 from keras.layers.convolutional import Convolution2D, MaxPooling2D

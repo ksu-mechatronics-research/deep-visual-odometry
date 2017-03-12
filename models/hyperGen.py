@@ -1,4 +1,6 @@
-#!/usr/local/lib/python3.5/dist-packages
+'''
+generates json descripter files detailing new networks
+'''
 import os
 import sys
 import json

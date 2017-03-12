@@ -2,9 +2,11 @@
 import sys
 import json
 import formatData
-sys.path.append('/home/sexy/source/deep-visual-odometry/models')
-from alexNet_3 import run_model, create_model
+
 netNum = '3'
+sys.path.append('/home/sexy/source/deep-visual-odometry/models/alexnet_inspired/alexNet_'+netNum) #IDK if this works; directories were 'organized'.
+from alexNet_3 import run_model, create_model
+
 Xtr, Ytr, Xte, Yte = formatData.knownEnv(formatData.load_data(),formatData.load_poses(), training_ratio=(8/10.0))
 
 #run = 0 

@@ -8,7 +8,7 @@ from model import train_model, VGG_16
 
 #get datatool
 PATH = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(PATH,"..","..","python","tools"))
+sys.path.append(os.path.join(PATH,"..","..","..","python","tools"))
 import datatool
 
 netNum = '0'

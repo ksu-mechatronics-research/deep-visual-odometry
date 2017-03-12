@@ -9,7 +9,7 @@ FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 def plot_path(model_folder='', model_type='global', paths=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]):
     '''
-    model_folder: the folder to look for model files in
+    model_folder: the path to look for model files in
 
     model_type: 'global', 'relative', or 'quaternion'
 
@@ -19,12 +19,10 @@ def plot_path(model_folder='', model_type='global', paths=[0, 1, 2, 3, 4, 5, 6, 
     paths: Which paths should be plotted
     '''
     #check that model (folder) name given
-    if not model_name:
-        raise ValueError('model folder not specified, must provide model_name arg')
+    if not model_folder:
+        raise ValueError('model folder not specified, must provide model_folder arg')
 
     #Get file paths
-    model_root = os.path.join(FILE_PATH, '..', '..', 'models', model_name)
-
     model_files = os.listdir(model_root).sort()
 
     for i, mfile in enumerate(model_files):
@@ -34,7 +32,7 @@ def plot_path(model_folder='', model_type='global', paths=[0, 1, 2, 3, 4, 5, 6, 
             model_files.remove(mfile)
 
     if len(model_files) == 0:
-        raise Exception('no models (.h5) found in directory "' + model_name + '"')
+        raise Exception('no models (.h5) found in directory "' + model_folder + '"')
 
     untested_models = []
     for datafile in model_files:
