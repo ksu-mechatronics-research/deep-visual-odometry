@@ -29,7 +29,7 @@ def quat_generate_paths(model_file_path=''):
     #     each containing 2 lists: translation and quaternion rotation
     predictions = []
     for i in range(11):
-        predictions.append(model.predict(eval_data[i], batch_size=256, verbose=1))
+        predictions.append(model.predict(eval_data[i], batch_size=8, verbose=1))
         predictions[i][0] = (predictions[i][0]).astype(np.float)
         predictions[i][1] = (predictions[i][1]).astype(np.float)
 
