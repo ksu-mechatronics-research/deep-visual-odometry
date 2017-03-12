@@ -37,7 +37,8 @@ for j in range(3, 50):
         activation = random.choice(activations)
         poolSize = random.choice(poolings)
         poolStride = 2*random.randint(1, (poolSize-1)/2)+1
-        convolutions.append([kernalNum, kernalSize, activation, poolSize, poolStride])
+        dropout = random.uniform(0.1, 0.5)
+        convolutions.append([kernalNum, kernalSize, activation, poolSize, poolStride, dropout])
     dense = []
     denseLayers = random.randint(1, 4)
     denseSizes = []
@@ -48,7 +49,8 @@ for j in range(3, 50):
     for i in range(denseLayers):
         denseSize = 2**denseSizes[i]
         activation = random.choice(activations)
-        dense.append([denseSize, activation])
+        dropout = random.uniform(0.1, 0.5)
+        dense.append([denseSize, activation, dropout])
     output_dict['convolution'] = convolutions
     output_dict['dense'] = dense
 
