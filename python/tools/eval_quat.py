@@ -1,6 +1,6 @@
 '''
 This is a script to take a rotation (quaternion) model and generate
-    jsons containing path information.
+    pictures containing path info
 '''
 import os
 import json
