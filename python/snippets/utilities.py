@@ -9,10 +9,10 @@ import formatData
 
 # loads a model and runs a forward pass through either entire sequence, train, or test
 # output = (0 == entire sequence) (1 == train data) (2 == test data)
-def plot_model(netNum = '3', which_model = 'train_7.h5', tr_ratio = (8/10.0)):
+def plot_model(netNum = '3', which_model = 'gen_train_', tr_ratio = (10/10.0)):
     model_dir = '/home/sexy/source/deep-visual-odometry/models/'
 
-    model = load_model(model_dir+"alexNet_"+netNum+"/"+which_model)
+    model = load_model(model_dir+"global_models/"+which_model+netNum+".h5")
 
     image_data = formatData.load_data()
     pose_data = formatData.load_poses()
@@ -112,4 +112,5 @@ def plot_model(netNum = '3', which_model = 'train_7.h5', tr_ratio = (8/10.0)):
         json.dump(temp_plot, f, indent=4)
 
 plot_model()
-plot_model(netNum = '7', which_model = 'train_0.h5')
+plot_model(netNum = '4')
+plot_model(netNum = '5')
