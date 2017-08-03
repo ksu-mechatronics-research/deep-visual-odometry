@@ -2,6 +2,9 @@
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/ksu-mechatronics-research/deep-visual-odometry/blob/master/LICENSE)
 ## What is this?
 
+### This is a dead repo, created as part of a mechatronics research project at Kennesaw State University College of Engineering.
+* See https://github.com/IAAAIAAIA/svo for a more up-to-date project.
+
 Visual odometry is the use of visual sensors to estimate change in position over time.
 
 The state of the art is to accomplish this with techniques such as SLAM, but these techniques are resource intensive and run slowly on limited hardware platforms such as Odroid or Raspberry Pi.
